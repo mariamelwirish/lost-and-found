@@ -1,0 +1,201 @@
+/* ===== Theme (Lavender / Blueish) ===== */
+:root{
+  --brand:#C8B1D4;         /* lavender bar/buttons */
+  --brand-dark:#B79FC8;    /* hover/darker lavender */
+  --canvas:#FFF9F6;        /* warm off-white page bg */
+  --ink:#1C2C35;           /* dark slate text */
+  --muted:#DCD2E4;         /* soft divider/border */
+}
+
+/* predictable sizing */
+*,*::before,*::after { box-sizing: border-box; }
+
+html,body,#root{height:100%;margin:0}
+body{
+  font-family: system-ui, Segoe UI, Arial, sans-serif;
+  background: var(--canvas);
+  color: var(--ink);
+}
+a{color:inherit;text-decoration:none}
+a:hover{text-decoration:underline}
+
+/* ================= NAVBAR ================= */
+.topbar{
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--brand);
+  box-shadow: 0 1px 0 rgba(0,0,0,.06);
+}
+
+/* full-width strip; inner handles content width */
+.bar{ width:100%; margin:0; background:var(--brand); }
+
+.inner{
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  color: var(--ink);
+  padding: 14px 4px;   /* ⬅ was 24px → now almost flush left */
+}
+
+.center-nav{
+  justify-self:start;
+  margin-left: 0;      /* ⬅ was 12px or 26px → now none */
+  gap: 20px;           /* ⬅ optional: add some space between links */
+}
+
+.brand-img {
+  height: 36px;
+  margin-left: 0;      /* ⬅ ensures logo hugs the left edge */
+}
+.right{ justify-self:end; }
+.right a{ white-space:nowrap; }
+
+/* links look dark on the light lavender bar */
+.nav{ display:flex; gap:24px; align-items:center; flex-wrap:nowrap; }
+.nav a{ color:var(--ink); opacity:.9; text-decoration:none; font-size:14px; }
+.nav a:hover{ opacity:1; }
+.sep{ width:1px; height:18px; background:rgba(0,0,0,.14); }
+.disabled{ pointer-events:none; opacity:.6; }
+
+/* ================= LAYOUT HELPERS ================= */
+.container{ max-width:1100px; margin:0 auto; padding:32px 16px; }
+
+.center{
+  min-height: calc(100vh - 64px);
+  display: grid; place-items:center;
+  padding: 24px 12px;
+}
+
+/* lockup above the form (logo + wordmark) */
+.lockup{
+  display:flex; align-items:center; gap:12px; justify-content:center;
+  margin: 12px 0 8px;
+}
+.lockup .badge{
+  width:40px; height:40px; border-radius:50%;
+  background:#fff; color:var(--brand);
+  display:grid; place-items:center; font-weight:800; font-size:13px;
+  box-shadow: inset 0 0 0 2px var(--brand);
+}
+.lockup h1{ margin:0; font-size:32px; font-weight:800; color:var(--ink); }
+
+/* form wrapper — clean, slim, centered */
+.form{
+  width:360px;
+  background:transparent; padding:0; border-radius:0; box-shadow:none;
+  margin-top: 8px;
+}
+
+.field{ display:block; margin:10px 0; }
+.field > span{ display:block; font-size:12px; margin:0 0 6px; color:#445; }
+.input{
+  width:100%; padding:12px 14px; border:1px solid var(--muted);
+  border-radius:8px; background:#fff; outline:none; transition: .15s ease;
+}
+.input:focus{
+  border-color:var(--brand);
+  box-shadow:0 0 0 3px rgba(200,177,212,.35);
+}
+
+.btn{
+  display:block; width:100%; border:0; border-radius:999px;
+  padding:12px 14px; text-align:center; cursor:pointer; font-weight:600;
+}
+.btn-primary{ background:var(--brand); color:#fff; }
+.btn-primary:hover{ background:var(--brand-dark); }
+.btn-ghost{ background:#EFE8F4; color:var(--ink); }
+
+.divider{
+  display:flex; align-items:center; gap:8px;
+  margin:12px 0; color:#666; font-size:12px;
+}
+.divider::before,.divider::after{
+  content:""; flex:1; height:1px; background:var(--muted);
+}
+
+/* brand hero image under navbar on auth pages */
+/* Middle (form) logo – never distort */
+.brand-hero {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+/* set width only, let height auto; also keep it responsive */
+.brand-hero-logo {
+  width: 280px;        /* pick a size you like (240–320 is nice) */
+  max-width: 90%;      /* shrink on small screens */
+  height: auto;        /* <-- prevents squishing/stretching */
+  object-fit: contain; /* safety */
+}
+
+/* Navbar logo – also ensure no distortion there */
+.brand-img {
+  height: 32px;        /* control one dimension */
+  width: auto;         /* <-- prevents squishing */
+  object-fit: contain;
+}
+
+
+
+/* minor helpers */
+.error{
+  background:#fff1f1; color:#9a1b1b; border:1px solid #f0caca;
+  padding:8px 10px; border-radius:8px; font-size:13px; margin:8px 0;
+}
+.w-full{ width:100%; }
+/* --- FULL-BLEED NAVBAR: hug the left edge --- */
+.topbar .inner{
+  /* remove the centering container */
+  max-width: none;       /* override 1200px */
+  margin: 0;             /* override auto centering */
+  padding-left: 0;       /* no left padding */
+  padding-right: 12px;   /* keep a little on the right */
+}
+
+.topbar .brand-img{
+  height: 36px;
+  display: block;
+  margin-left: 0;        /* start at the very edge */
+}
+
+.topbar .center-nav{
+  margin-left: 8px;      /* gap between logo and links; set 0 for tighter */
+  gap: 18px;             /* spacing between "Home / About / ..." */
+}
+
+/* If something else still overrides these, force it (uncomment) */
+/*
+.topbar .inner{ padding-left: 0 !important; max-width: none !important; margin: 0 !important; }
+.topbar .brand-img{ margin-left: 0 !important; }
+.topbar .center-nav{ margin-left: 4px !important; }
+*/
+/* === Navbar: safe left gutter, tight layout === */
+.topbar { --gutter: 12px; }            /* tweak this (8–16) to taste */
+
+.topbar .inner{
+  max-width: none;                     /* full-bleed bar */
+  margin: 0;                           /* no auto-centering */
+  padding-left: var(--gutter);         /* <-- small left gutter to avoid clipping */
+  padding-right: 16px;                 /* keep a bit on the right */
+}
+
+.topbar .brand-img{
+  height: 32px;                        /* slightly shorter = better vertical balance */
+  display: block;
+  margin-left: 0;                      /* start at gutter */
+}
+
+.topbar .center-nav {
+  margin-left: 400px;   /* ⬅ increase this until the spacing looks good */
+  gap: 20px;           /* spacing between the links themselves */
+}
+.form-foot{
+  display:flex; justify-content:flex-end; margin: -4px 2px 10px;
+}
+.form-foot a{ font-size:13px; opacity:.9; }
+.form-foot a:hover{ opacity:1; text-decoration:underline; }
