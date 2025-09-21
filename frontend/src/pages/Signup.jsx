@@ -14,19 +14,27 @@ export default function Signup() {
   function onSubmit(e) {
     e.preventDefault();
     setError("");
-    if (!form.firstName || !form.lastName || !form.username || !form.email || !form.password) {
+
+    // quick front-end validation
+    if (!form.firstName || !form.lastName || !form.username ||
+        !form.email || !form.password) {
       return setError("Please fill all required fields.");
     }
-    // TODO: call backend; for now pretend success:
+
+    // TODO: call backend
+    // simulate success
     navigate("/login");
   }
 
   return (
     <div className="center">
-      <form className="card" onSubmit={onSubmit}>
-        <h1 className="logo-lg">lostfound <span className="arrow">⇢</span></h1>
+      <form className="form" onSubmit={onSubmit}>
+        <div className="brand-hero">
+          <img src="/lostfound.png" alt="lostfound" className="brand-hero-logo" />
 
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+        </div>
+
+        <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"10px" }}>
           <label className="field">
             <span>First Name</span>
             <input className="input" value={form.firstName} onChange={e=>update("firstName", e.target.value)} />
