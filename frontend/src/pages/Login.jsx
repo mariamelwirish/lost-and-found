@@ -10,58 +10,59 @@ export default function Login() {
   function onSubmit(e) {
     e.preventDefault();
     setError("");
+
     if (!email || !password) {
       return setError("Please fill in both fields.");
     }
     // TODO: call backend
-    navigate("/");
+    // simulate success
+    navigate("/home");
   }
 
   return (
     <div className="center">
-      <form className="form" onSubmit={onSubmit} noValidate>
-        {/* Figma-style wordmark (crest + text) above the form */}
-        <div className="brand-hero">
-          <div className="brand-hero-img" aria-label="Lost Found" />
-        </div>
+      <form className="form" onSubmit={onSubmit}>
+
+        {/* wordmark */}
+       <div className="brand-hero">
+  <img src="/lostfound.png" alt="lostfound" className="brand-hero-logo" />
+</div>
 
         <label className="field">
           <span>Email</span>
           <input
-            className="input"
-            type="email"
-            placeholder="you@aub.edu.lb"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
+  type="email"
+  placeholder="you@mail.aub.edu or you@aub.edu.lb"
+  className="input"
+  value={email}
+  onChange={e => setEmail(e.target.value)}
+/>
+
         </label>
 
         <label className="field">
-          <span>Password</span>
-          <input
-            className="input"
-            type="password"
-            placeholder="••••••••"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </label>
+  <span>Password</span>
+  <input
+    type="password"
+    placeholder="********"
+    className="input"
+    value={password}
+    onChange={e=>setPassword(e.target.value)}
+  />
+</label>
 
-        {error && (
-          <div style={{ color: "#b91c1c", fontSize: 13, margin: "6px 0" }}>
-            {error}
-          </div>
-        )}
+<div className="form-foot">
+  <Link to="/forgot">Forgot password?</Link>
+</div>
 
-        <button className="btn btn-primary" type="submit">
-          Log in
-        </button>
+
+        {error && <div className="error">{error}</div>}
+
+        <button className="btn btn-primary" type="submit">Log in</button>
 
         <div className="divider">Or</div>
 
-        <Link className="btn btn-primary" to="/signup">
-          Sign up
-        </Link>
+        <Link className="btn btn-primary" to="/signup">Sign up</Link>
       </form>
     </div>
   );

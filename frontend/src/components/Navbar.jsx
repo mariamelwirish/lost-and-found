@@ -5,23 +5,24 @@ export default function Navbar() {
     <header className="topbar">
       <div className="bar">
         <div className="inner">
-          {/* LEFT: logo (keeps going to "/" which is Login now) */}
-          <Link to="/" className="brand">
-            <img src="/crest.png" alt="Lost & Found" className="brand-img" />
-          </Link>
+          {/* LEFT: logo (link to "/") */}
+          <Link to="/" className="brand" aria-label="Lost & Found">
+  <img src="/lostfound-dark.png" alt="lostfound" className="brand-img" />
+</Link>
 
-          {/* CENTER: menu (Home now points to /home) */}
+
+          {/* CENTER: menu */}
           <nav className="nav center-nav">
             <NavLink to="/home">Home</NavLink>
             <span className="sep" />
-            <a className="disabled">About</a>
+            <NavLink to="/about">About</NavLink>
             <span className="sep" />
             <a className="disabled">Lost</a>
             <span className="sep" />
             <a className="disabled">Found</a>
           </nav>
 
-          {/* RIGHT: auth link goes to /login */}
+          {/* RIGHT: auth */}
           <div className="nav right">
             <Link to="/login">Log in</Link>
           </div>
