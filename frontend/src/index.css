@@ -218,3 +218,24 @@ a:hover{text-decoration:underline}
   color: var(--ink);
   opacity: .85;
 }
+
+/* Home hero logo */
+.hero-logo{
+  display:flex;
+  justify-content:center;
+  margin: 6px 0 10px;
+}
+.home-logo{
+  width: 280px;        /* same size as before */
+  max-width: 90%;
+  height: auto;
+  object-fit: contain;
+}
+
+
+/* Visually hidden but accessible (for <h1 class="sr-only">) */
+.sr-only{
+  position:absolute;
+  width:1px; height:1px; padding:0; margin:-1px;
+  overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0;
+}
