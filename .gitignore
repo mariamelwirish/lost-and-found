@@ -42,7 +42,6 @@ venv/
 .venv/
 
 # Environment & secrets
-.env
 *.sqlite3  
 
 # Django stuff

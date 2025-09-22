@@ -1,22 +1,25 @@
-# apps/accounts/mailer_sendgrid_http.py
+# backend/users/mailer_sendgrid_http.py
 import os
 import json
 import requests
 
-SENDGRID_API_KEY = os.environ.get("SENDGRID_API_KEY")
-SENDER_EMAIL = os.environ.get("SENDER_EMAIL")  # must be your verified sender
-
 API_URL = "https://api.sendgrid.com/v3/mail/send"
 
-def send_verification_email(to_email: str, code: str, full_name: str | None = None) -> None:
+def send_verification_email_via_sendgrid(to_email: str, code: str, full_name: str | None = None) -> None:
     """
     Sends a simple HTML verification email via SendGrid HTTP API.
-    Raises RuntimeError with details if SendGrid returns an error.
+    Requires:
+      - SENDGRID_API_KEY in env
+      - SENDER_EMAIL in env (must match your verified Single Sender)
+    Raises RuntimeError if SendGrid returns an error.
     """
-    if not SENDGRID_API_KEY:
+    api_key = os.environ.get("SENDGRID_API_KEY")
+    sender_email = os.environ.get("SENDER_EMAIL")
+
+    if not api_key:
         raise RuntimeError("SENDGRID_API_KEY not set")
-    if not SENDER_EMAIL:
-        raise RuntimeError("SENDER_EMAIL not set")
+    if not sender_email:
+        raise RuntimeError("SENDER_EMAIL not set (must equal the verified sender)")
 
     subject = "Your Lost & Found verification code"
     body_html = f"""
@@ -33,12 +36,12 @@ def send_verification_email(to_email: str, code: str, full_name: str | None = No
         "personalizations": [
             {"to": [{"email": to_email}], "subject": subject}
         ],
-        "from": {"email": SENDER_EMAIL},
+        "from": {"email": sender_email, "name": "AUB Lost & Found"},
         "content": [{"type": "text/html", "value": body_html}]
     }
 
     headers = {
-        "Authorization": f"Bearer {SENDGRID_API_KEY}",
+        "Authorization": f"Bearer {api_key}",
         "Content-Type": "application/json"
     }
 

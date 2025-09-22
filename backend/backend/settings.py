@@ -187,5 +187,5 @@ DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="webmaster@localhost")
 
 AUTH_USER_MODEL = "users.User"
 
-# AUB email domains to accept (adjust when you confirm exact domains)
-AUB_EMAIL_DOMAINS = ["aub.edu.lb", "mail.aub.edu.lb"]
+# AUB email domains to accept
+AUB_EMAIL_DOMAINS = ["aub.edu.lb", "mail.aub.edu"]
