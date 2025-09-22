@@ -24,7 +24,7 @@ npm install
 ```bash
 cd backend
 cp .env.example .env
-# Edit .env with actual values (get SendGrid key from team lead)
+# Edit .env with actual values (add your SendGrid key)
 ```
 
 **Frontend:**
@@ -62,5 +62,6 @@ npm run dev
 
 ## Important Notes
 - Never commit `.env` files to git
-- Get SendGrid API key from team lead for email functionality
+- Use SendGrid API key for email functionality
 - Use AUB email addresses (@aub.edu.lb or @mail.aub.edu) for registration
+
