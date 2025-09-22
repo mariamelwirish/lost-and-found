@@ -1,4 +1,5 @@
 env
+.env
 .idea
 # Logs
 logs
@@ -24,3 +25,39 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+*.egg
+*.log
+
+# Virtual environment
+env/
+venv/
+.venv/
+
+# Environment & secrets
+.env
+*.sqlite3   # optional, if you don’t want to commit local sqlite db
+
+# Django stuff
+staticfiles/
+media/
+
+# Node / React
+node_modules/
+build/
+dist/
+*.lock
+
+# IDE / OS
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
