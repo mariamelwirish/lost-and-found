@@ -11,3 +11,4 @@ sqlparse
 python-dotenv
 pip
 django-environ==0.11.2
+requests
