@@ -1,15 +1,33 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import api from "../api";
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
 
-  function onSubmit(e){
+  async function onSubmit(e){
     e.preventDefault();
     if(!email) return;
-    // TODO: call your backend reset endpoint
-    setSent(true);
+    
+    setLoading(true);
+    setError("");
+    
+    try {
+      await api.post("/api/users/request-password-reset/", {
+        email: email
+      });
+      // Redirect to confirmation page with email in state
+      navigate("/reset-password", { state: { email } });
+    } catch (err) {
+      setError("Failed to send reset email. Please try again.");
+      console.error("Password reset error:", err);
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -36,13 +54,21 @@ export default function ForgotPassword() {
           />
         </label>
 
+        {error && (
+          <div className="error">
+            {error}
+          </div>
+        )}
+
         {sent && (
           <div className="error" style={{background:"#eefaf0", borderColor:"#c6efd1", color:"#245b2a"}}>
             If this email exists, a reset link was sent.
           </div>
         )}
 
-        <button className="btn btn-primary" type="submit">Send reset link</button>
+        <button className="btn btn-primary" type="submit" disabled={loading}>
+          {loading ? "Sending..." : "Send reset link"}
+        </button>
 
         <div className="divider">Or</div>
         <Link className="btn btn-ghost" to="/login">Back to Log in</Link>
