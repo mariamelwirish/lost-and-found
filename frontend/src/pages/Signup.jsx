@@ -2,6 +2,29 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { setUser } from "../utils/session"; // <-- store user for Home greeting
 
+// Password rule helpers (frontend guidance only)
+const PASSWORD_RULES = [
+  { label: "8+ characters", test: s => (s || "").length >= 8 },
+  { label: "Uppercase",      test: s => /[A-Z]/.test(s || "") },
+  { label: "Lowercase",      test: s => /[a-z]/.test(s || "") },
+  { label: "Digit",          test: s => /\d/.test(s || "") },
+  { label: "Special char",   test: s => /[^\w\s]/.test(s || "") },
+];
+
+const passesAllRules = s => PASSWORD_RULES.every(r => r.test(s));
+
+function PasswordHints({ password }) {
+  return (
+    <ul style={{ listStyle: "none", padding: 0, margin: "6px 0 0 0", fontSize: 12 }}>
+      {PASSWORD_RULES.map(r => (
+        <li key={r.label}>
+          {r.test(password) ? "✓" : "•"} {r.label}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 export default function Signup() {
   const [form, setForm] = useState({
     firstName: "", lastName: "", username: "",
@@ -9,6 +32,7 @@ export default function Signup() {
   });
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const strong = passesAllRules(form.password);
 
   function update(k, v) { setForm(p => ({ ...p, [k]: v })); }
 
@@ -26,6 +50,11 @@ export default function Signup() {
     // quick front-end validation
     if (!firstName || !lastName || !username || !email || !password) {
       setError("Please fill all required fields.");
+      return;
+    }
+
+    if (!strong) {
+      setError("Use a stronger password");
       return;
     }
 
@@ -111,9 +140,10 @@ export default function Signup() {
             value={form.password}
             onChange={e=>update("password", e.target.value)}
           />
+          <PasswordHints password={form.password} />
         </label>
 
-        {error && <div className="error">{error}</div>}
+        {error && <div className="error" role="alert" aria-live="polite">{error}</div>}
 
         <button className="btn btn-primary w-full" type="submit">Sign up</button>
 
