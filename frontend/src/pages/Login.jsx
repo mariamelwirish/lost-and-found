@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { setUser, getUser } from "../utils/session";
+import api from "../api";
+import { ACCESS_TOKEN, REFRESH_TOKEN } from "../constants.js";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -18,18 +20,30 @@ export default function Login() {
     }
 
     try {
-      // TODO: call your real backend here and use the returned user object.
-      // For now, DO NOT overwrite username; just update email.
+      const resp = await api.post("/api/token/", {
+        // Backend accepts username, but our serializer maps email->username if needed
+        username: email,
+        password: password
+      });
+
+      const { access, refresh } = resp.data;
+
+      localStorage.setItem(ACCESS_TOKEN, access);
+      localStorage.setItem(REFRESH_TOKEN, refresh);
+
       const existing = getUser() || {};
       setUser({
         ...existing,
-        email,         // update email
-        // keep existing.name / existing.username if they already exist
+        email,
       });
 
-      navigate("/home"); // or "/" if your home route is "/"
+      navigate("/home");
     } catch (err) {
-      setError("Login failed. Please try again.");
+      if (err.response && err.response.status === 401) {
+        setError("Invalid email or password.");
+      } else {
+        setError("Login failed. Please try again.");
+      }
     }
   }
 

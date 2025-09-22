@@ -1,11 +1,13 @@
 # backend/users/mailer_sendgrid_http.py
 import os
 import json
+from typing import Optional
+
 import requests
 
 API_URL = "https://api.sendgrid.com/v3/mail/send"
 
-def send_verification_email_via_sendgrid(to_email: str, code: str, full_name: str | None = None) -> None:
+def send_verification_email_via_sendgrid(to_email: str, code: str, full_name: Optional[str] = None) -> None:
     """
     Sends a simple HTML verification email via SendGrid HTTP API.
     Requires:

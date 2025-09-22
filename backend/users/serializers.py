@@ -4,6 +4,7 @@ from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError as DjangoValidationError
 from .models import PendingSignup
 from django.contrib.auth.password_validation import validate_password
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 class EmailCheckSerializer(serializers.Serializer):
     email = serializers.EmailField()
@@ -89,3 +90,20 @@ class ResetPasswordSerializer(serializers.Serializer):
             raise serializers.ValidationError({"password2": "Passwords do not match."})
         validate_password(attrs["password"], user=None)
         return attrs
+
+class EmailTokenObtainPairSerializer(TokenObtainPairSerializer):
+    """
+    Allow login with email or username. If the 'username' field looks like an email,
+    resolve it to the user's actual username before validation.
+    """
+    def validate(self, attrs):
+        login_value = attrs.get(self.username_field)
+        if login_value and "@" in login_value:
+            try:
+                user = User.objects.get(email__iexact=login_value)
+                # Replace with the actual username for authentication
+                attrs[self.username_field] = getattr(user, User.USERNAME_FIELD, user.username)
+            except User.DoesNotExist:
+                # Let default validation handle invalid credentials
+                pass
+        return super().validate(attrs)

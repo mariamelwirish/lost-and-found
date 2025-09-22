@@ -9,6 +9,8 @@ from .serializers import VerifyCodeSerializer
 from django.contrib.auth import get_user_model
 from .models import PendingSignup
 from .serializers import SignupStartSerializer, VerifyCodeSerializer, RequestResetPasswordSerializer, ResetPasswordSerializer
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from .serializers import EmailTokenObtainPairSerializer
 
 class SendVerificationCodeView(APIView):
     authentication_classes = []
@@ -95,7 +97,7 @@ class RequestResetPasswordView(APIView):
             return Response(ser.errors, status=status.HTTP_400_BAD_REQUEST)
 
         email = ser.validated_data["email"]
-        
+
         # Check if user exists
         try:
             user = User.objects.get(email__iexact=email)
@@ -151,3 +153,7 @@ class ResetPasswordView(APIView):
         vc.mark_used()
 
         return Response({"detail": "Password updated successfully. You can now log in."})
+
+class EmailTokenObtainPairView(TokenObtainPairView):
+    permission_classes = [AllowAny]
+    serializer_class = EmailTokenObtainPairSerializer

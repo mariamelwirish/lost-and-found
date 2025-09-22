@@ -1,9 +1,11 @@
 import os
+from typing import Optional
+
 from django.core.mail import send_mail
 from django.conf import settings
 from .mailer_sendgrid_http import send_verification_email_via_sendgrid
 
-def send_verification_email(email: str, code: str, full_name: str | None = None):
+def send_verification_email(email: str, code: str, full_name: Optional[str] = None):
     """
     Sends the verification email.
     Behavior:
