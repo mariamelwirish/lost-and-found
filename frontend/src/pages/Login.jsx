@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { setUser, getUser } from "../utils/session";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -7,54 +8,63 @@ export default function Login() {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  function onSubmit(e) {
+  async function onSubmit(e) {
     e.preventDefault();
     setError("");
 
     if (!email || !password) {
-      return setError("Please fill in both fields.");
+      setError("Please fill in both fields.");
+      return;
     }
-    // TODO: call backend
-    // simulate success
-    navigate("/home");
+
+    try {
+      // TODO: call your real backend here and use the returned user object.
+      // For now, DO NOT overwrite username; just update email.
+      const existing = getUser() || {};
+      setUser({
+        ...existing,
+        email,         // update email
+        // keep existing.name / existing.username if they already exist
+      });
+
+      navigate("/home"); // or "/" if your home route is "/"
+    } catch (err) {
+      setError("Login failed. Please try again.");
+    }
   }
 
   return (
     <div className="center">
       <form className="form" onSubmit={onSubmit}>
-
-        {/* wordmark */}
-       <div className="brand-hero">
-  <img src="/lostfound.png" alt="lostfound" className="brand-hero-logo" />
-</div>
+        <div className="brand-hero">
+          <img src="/lostfound.png" alt="lostfound" className="brand-hero-logo" />
+        </div>
 
         <label className="field">
           <span>Email</span>
           <input
-  type="email"
-  placeholder="you@mail.aub.edu or you@aub.edu.lb"
-  className="input"
-  value={email}
-  onChange={e => setEmail(e.target.value)}
-/>
-
+            type="email"
+            placeholder="you@mail.aub.edu or you@aub.edu.lb"
+            className="input"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
         </label>
 
         <label className="field">
-  <span>Password</span>
-  <input
-    type="password"
-    placeholder="********"
-    className="input"
-    value={password}
-    onChange={e=>setPassword(e.target.value)}
-  />
-</label>
+          <span>Password</span>
+          <input
+            type="password"
+            placeholder="********"
+            className="input"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+        </label>
 
-<div className="form-foot">
-  <Link to="/forgot">Forgot password?</Link>
-</div>
-
+        <div className="form-foot">
+          <Link to="/forgot">Forgot password?</Link>
+        </div>
 
         {error && <div className="error">{error}</div>}
 
