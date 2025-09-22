@@ -3,12 +3,12 @@ from rest_framework.response import Response
 from rest_framework import status
 from .serializers import EmailCheckSerializer
 from .models import VerificationCode
-from .email_utils import send_verification_email
+from .email_utils import send_verification_email, send_reset_password_email
 from rest_framework.permissions import AllowAny
 from .serializers import VerifyCodeSerializer
 from django.contrib.auth import get_user_model
 from .models import PendingSignup
-from .serializers import SignupStartSerializer, VerifyCodeSerializer
+from .serializers import SignupStartSerializer, VerifyCodeSerializer, RequestResetPasswordSerializer, ResetPasswordSerializer
 
 class SendVerificationCodeView(APIView):
     authentication_classes = []
@@ -84,3 +84,70 @@ class VerifyCodeView(APIView):
         pending.delete()
 
         return Response({"valid": True, "detail": "Account created. You can log in now."})
+
+class RequestResetPasswordView(APIView):
+    authentication_classes = []
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        ser = RequestResetPasswordSerializer(data=request.data)
+        if not ser.is_valid():
+            return Response(ser.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        email = ser.validated_data["email"]
+        
+        # Check if user exists
+        try:
+            user = User.objects.get(email__iexact=email)
+        except User.DoesNotExist:
+            # Return same message for security (don't reveal if email exists)
+            return Response({"detail": "If this email exists, a reset link was sent."})
+
+        # Create verification code
+        vc = VerificationCode.new_code_for_email(email)
+        send_reset_password_email(email, vc.code)
+
+        return Response({"detail": "If this email exists, a reset link was sent."})
+
+class ResetPasswordView(APIView):
+    authentication_classes = []
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        ser = ResetPasswordSerializer(data=request.data)
+        if not ser.is_valid():
+            return Response(ser.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        email = ser.validated_data["email"]
+        code = ser.validated_data["code"]
+        password = ser.validated_data["password"]
+
+        # Find verification code
+        try:
+            vc = VerificationCode.objects.filter(email=email, code=code).latest("created_at")
+        except VerificationCode.DoesNotExist:
+            return Response({"error": "Invalid code."}, status=status.HTTP_400_BAD_REQUEST)
+
+        if not vc.is_valid():
+            return Response({"error": "Code expired or already used."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Check attempts
+        vc.attempts += 1
+        if vc.attempts > 3:
+            return Response({"error": "Too many attempts."}, status=status.HTTP_400_BAD_REQUEST)
+        vc.save(update_fields=["attempts"])
+
+        # Find user and update password
+        try:
+            user = User.objects.get(email__iexact=email)
+        except User.DoesNotExist:
+            return Response({"error": "User not found."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Update password
+        user.set_password(password)
+        user.save()
+
+        # Mark code as used
+        vc.mark_used()
+
+        return Response({"detail": "Password updated successfully. You can now log in."})

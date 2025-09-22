@@ -68,3 +68,24 @@ class SignupStartSerializer(serializers.Serializer):
             raw_password=data["password"],
             lifetime_minutes=30,
         )
+
+class RequestResetPasswordSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
+    def validate_email(self, value):
+        return validate_aub_email(value)
+
+class ResetPasswordSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    code = serializers.CharField(max_length=6)
+    password = serializers.CharField(min_length=8)
+    password2 = serializers.CharField(min_length=8)
+
+    def validate_email(self, value):
+        return validate_aub_email(value)
+
+    def validate(self, attrs):
+        if attrs["password"] != attrs["password2"]:
+            raise serializers.ValidationError({"password2": "Passwords do not match."})
+        validate_password(attrs["password"], user=None)
+        return attrs
