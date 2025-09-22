@@ -43,3 +43,22 @@ def get_help_text():
         "Your password must contain at least 8 characters, including "
         "a lowercase letter, an uppercase letter, a digit, and a special character."
     )
+
+class ComplexPasswordValidator:
+    def validate(self, password, user=None):
+        if len(password) < 8:
+            raise ValidationError("Password must be at least 8 characters long.")
+        if not re.search(r"[a-z]", password):
+            raise ValidationError(_("Add a lowercase letter."), code="password_no_lower")
+        if not re.search(r"[A-Z]", password):
+            raise ValidationError(_("Add an uppercase letter."), code="password_no_upper")
+        if not re.search(r"\d", password):
+            raise ValidationError(_("Add a digit."), code="password_no_digit")
+        if not re.search(r"[^\w\s]", password):
+            raise ValidationError(_("Add a special character."), code="password_no_special")
+
+    def get_help_text(self):
+        return _(
+            "Your password must contain at least 8 characters, including "
+            "a lowercase letter, an uppercase letter, a digit, and a special character."
+        )
