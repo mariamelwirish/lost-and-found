@@ -43,7 +43,7 @@ venv/
 
 # Environment & secrets
 .env
-*.sqlite3   # optional, if you don’t want to commit local sqlite db
+*.sqlite3  
 
 # Django stuff
 staticfiles/
