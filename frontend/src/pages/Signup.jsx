@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { setUser } from "../utils/session"; // <-- store user for Home greeting
+import { setUser } from "../utils/session";
+import api from "../api";
 
 // Password rule helpers (frontend guidance only)
 const PASSWORD_RULES = [
@@ -28,8 +29,10 @@ function PasswordHints({ password }) {
 export default function Signup() {
   const [form, setForm] = useState({
     firstName: "", lastName: "", username: "",
-    email: "", phone: "", password: ""
+    email: "", phone: "", password: "", password2: ""
   });
+  const [step, setStep] = useState(1); // 1: form, 2: verify code
+  const [verificationCode, setVerificationCode] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
   const strong = passesAllRules(form.password);
@@ -40,42 +43,113 @@ export default function Signup() {
     e.preventDefault();
     setError("");
 
-    const firstName = form.firstName.trim();
-    const lastName  = form.lastName.trim();
-    const username  = form.username.trim();
-    const email     = form.email.trim();
-    const phone     = form.phone.trim();
-    const password  = form.password; // keep as-is
+    if (step === 1) {
+      // Step 1: Send verification code
+      const { firstName, lastName, username, email, phone, password, password2 } = form;
 
-    // quick front-end validation
-    if (!firstName || !lastName || !username || !email || !password) {
-      setError("Please fill all required fields.");
-      return;
+      if (!firstName.trim() || !lastName.trim() || !username.trim() || !email.trim() || !password) {
+        setError("Please fill all required fields.");
+        return;
+      }
+
+      if (password !== password2) {
+        setError("Passwords do not match.");
+        return;
+      }
+
+      if (!strong) {
+        setError("Use a stronger password");
+        return;
+      }
+
+      try {
+        await api.post("/api/users/send-code/", {
+          first_name: firstName.trim(),
+          last_name: lastName.trim(),
+          username: username.trim(),
+          email: email.trim(),
+          phone: phone.trim() || null,
+          password,
+          password2
+        });
+        setStep(2);
+      } catch (err) {
+        const errorData = err.response?.data;
+        if (errorData) {
+          // Handle field-specific errors
+          const errors = [];
+          if (errorData.email) errors.push(`Email: ${Array.isArray(errorData.email) ? errorData.email.join(', ') : errorData.email}`);
+          if (errorData.username) errors.push(`Username: ${Array.isArray(errorData.username) ? errorData.username.join(', ') : errorData.username}`);
+          if (errorData.password) errors.push(`Password: ${Array.isArray(errorData.password) ? errorData.password.join(', ') : errorData.password}`);
+          if (errorData.password2) errors.push(`Password confirmation: ${Array.isArray(errorData.password2) ? errorData.password2.join(', ') : errorData.password2}`);
+          if (errorData.non_field_errors) errors.push(Array.isArray(errorData.non_field_errors) ? errorData.non_field_errors.join(', ') : errorData.non_field_errors);
+          
+          setError(errors.length > 0 ? errors.join(' ') : errorData.detail || "Failed to send verification code.");
+        } else {
+          setError("Failed to send verification code.");
+        }
+      }
+    } else {
+      // Step 2: Verify code and create account
+      if (!verificationCode.trim()) {
+        setError("Please enter the verification code.");
+        return;
+      }
+
+      try {
+        const response = await api.post("/api/users/verify-code/", {
+          email: form.email.trim(),
+          code: verificationCode.trim()
+        });
+
+        setUser({
+          name: `${form.firstName} ${form.lastName}`.trim(),
+          username: form.username,
+          email: form.email,
+          phone: form.phone
+        });
+
+        navigate("/");
+      } catch (err) {
+        setError(err.response?.data?.error || "Verification failed.");
+      }
     }
+  }
 
-    if (!strong) {
-      setError("Use a stronger password");
-      return;
-    }
+  if (step === 2) {
+    return (
+      <div className="center">
+        <form className="form" onSubmit={onSubmit}>
+          <div className="brand-hero">
+            <img src="/lostfound.png" alt="lostfound" className="brand-hero-logo" />
+          </div>
 
-    try {
-      // TODO: replace with your real API call
-      // const res = await axios.post("/api/signup", { firstName, lastName, username, email, phone, password });
-      // const data = res?.data?.user ?? res?.data ?? res;
+          <h2>Verify Your Email</h2>
+          <p>We sent a 6-digit code to {form.email}</p>
 
-      // Save WHAT WE WANT TO GREET WITH:
-      setUser({
-        name: `${firstName} ${lastName}`.trim(),
-        username,        // <-- this is the display you want
-        email,
-        phone
-      });
+          <label className="field">
+            <span>Verification Code</span>
+            <input
+              className="input"
+              placeholder="123456"
+              maxLength="6"
+              value={verificationCode}
+              onChange={(e) => setVerificationCode(e.target.value)}
+            />
+          </label>
 
-      // Go to Home so you see: "Welcome, <username>"
-      navigate("/home"); // use "/" if your home route is "/"
-    } catch (err) {
-      setError("Signup failed. Please try again.");
-    }
+          {error && <div className="error" role="alert" aria-live="polite">{error}</div>}
+
+          <button className="btn btn-primary w-full" type="submit">Verify & Create Account</button>
+
+          <div style={{ marginTop: 12, fontSize: 14, textAlign: "center" }}>
+            <button type="button" onClick={() => setStep(1)} style={{ background: "none", border: "none", color: "blue", cursor: "pointer" }}>
+              Back to form
+            </button>
+          </div>
+        </form>
+      </div>
+    );
   }
 
   return (
@@ -118,6 +192,7 @@ export default function Signup() {
           <input
             type="email"
             className="input"
+            placeholder="you@aub.edu.lb or you@mail.aub.edu"
             value={form.email}
             onChange={e=>update("email", e.target.value)}
           />
@@ -143,9 +218,19 @@ export default function Signup() {
           <PasswordHints password={form.password} />
         </label>
 
+        <label className="field">
+          <span>Confirm Password</span>
+          <input
+            type="password"
+            className="input"
+            value={form.password2}
+            onChange={e=>update("password2", e.target.value)}
+          />
+        </label>
+
         {error && <div className="error" role="alert" aria-live="polite">{error}</div>}
 
-        <button className="btn btn-primary w-full" type="submit">Sign up</button>
+        <button className="btn btn-primary w-full" type="submit">Send Verification Code</button>
 
         <div style={{ marginTop: 12, fontSize: 14, textAlign: "center" }}>
           Already have an account? <Link to="/login">Log in</Link>

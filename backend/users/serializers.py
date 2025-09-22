@@ -51,7 +51,10 @@ class SignupStartSerializer(serializers.Serializer):
 
         if attrs["password"] != attrs["password2"]:
             raise serializers.ValidationError({"password2": "Passwords do not match."})
-        validate_password(attrs["password"], user=None)
+        try:
+            validate_password(attrs["password"], user=None)
+        except DjangoValidationError as e:
+            raise serializers.ValidationError({"password": e.messages})
 
         # if phone and User.objects.filter(phone=phone).exists():
         #     raise serializers.ValidationError({"phone": "Phone already in use."})
