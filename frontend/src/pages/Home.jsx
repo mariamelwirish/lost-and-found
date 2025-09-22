@@ -1,23 +1,27 @@
 import { useMemo } from "react";
 import { getUser } from "../utils/session";
 
-function Home() {
+export default function Home() {
   const user = useMemo(() => getUser(), []);
   const displayName =
-    user?.name ||
-    user?.username ||
+    (user?.name && user.name.trim()) ||
+    (user?.username && user.username.trim()) ||
     (user?.email ? user.email.split("@")[0] : "");
 
   return (
     <main className="hero">
-      {/* Optional small line above the big title */}
       <div className="welcome">
         Welcome{displayName ? `, ${displayName}` : ""} 👋
       </div>
 
-      <h1 className="title">
-        lostfound <span className="badge">⤴</span>
-      </h1>
+      {/* Logo instead of text title */}
+      <div className="hero-logo" aria-hidden="true">
+        {/* Use the same logo you already use on auth pages */}
+        {/* If your file name is different, update the src path */}
+        <img src="/lostfound.png" alt="lostfound" className="home-logo" />
+      </div>
+      {/* Keep an accessible title for screen readers */}
+      <h1 className="sr-only">lostfound</h1>
 
       <div className="intro">
         <p>Lost your keys around AUB campus?</p>
@@ -35,4 +39,3 @@ function Home() {
     </main>
   );
 }
-export default Home;

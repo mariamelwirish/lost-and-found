@@ -3,6 +3,7 @@ from .validators import validate_aub_email
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError as DjangoValidationError
 from .models import PendingSignup
+from django.contrib.auth.password_validation import validate_password
 
 class EmailCheckSerializer(serializers.Serializer):
     email = serializers.EmailField()
@@ -27,6 +28,7 @@ class SignupStartSerializer(serializers.Serializer):
     email      = serializers.EmailField()
     phone      = serializers.CharField(max_length=20, allow_blank=True, allow_null=True, required=False)
     password   = serializers.CharField(write_only=True, min_length=8)
+    password2  = serializers.CharField(write_only=True, min_length=8)
 
     def validate_email(self, value):
         # AUB domain check (Step 2)
@@ -41,9 +43,15 @@ class SignupStartSerializer(serializers.Serializer):
         email = attrs["email"]
         phone = attrs.get("phone") or None
 
+
+
         # Unique email at final user creation time
         if User.objects.filter(email__iexact=email).exists():
             raise serializers.ValidationError({"email": "Email already registered."})
+
+        if attrs["password"] != attrs["password2"]:
+            raise serializers.ValidationError({"password2": "Passwords do not match."})
+        validate_password(attrs["password"], user=None)
 
         # if phone and User.objects.filter(phone=phone).exists():
         #     raise serializers.ValidationError({"phone": "Phone already in use."})
