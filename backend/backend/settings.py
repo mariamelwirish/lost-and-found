@@ -14,23 +14,37 @@ from pathlib import Path
 from datetime import timedelta
 from dotenv import load_dotenv
 import os
+import environ
+from pathlib import Path
 
-load_dotenv()
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+
+# load_dotenv()
+
+# # Build paths inside the project like this: BASE_DIR / 'subdir'.
+# BASE_DIR = Path(__file__).resolve().parent.parent
+
 BASE_DIR = Path(__file__).resolve().parent.parent
+env = environ.Env(
+    DJANGO_DEBUG=(bool, False),
+)
 
+environ.Env.read_env(BASE_DIR / ".env")
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-*21upvyq-skrf17_c!)#5_)oslz78n5(&2p(m(ec62ubr%*w!p"
+# SECRET_KEY = "django-insecure-*21upvyq-skrf17_c!)#5_)oslz78n5(&2p(m(ec62ubr%*w!p"
+
+SECRET_KEY = env("DJANGO_SECRET_KEY")
+DEBUG = env("DJANGO_DEBUG")
+ALLOWED_HOSTS = env.list("DJANGO_ALLOWED_HOSTS", default=[])
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# DEBUG = True
 
-ALLOWED_HOSTS = ["*"]
+# ALLOWED_HOSTS = ["*"]
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
@@ -50,6 +64,7 @@ SIMPLE_JWT = {
 # Application definition
 
 INSTALLED_APPS = [
+    "users",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -59,6 +74,7 @@ INSTALLED_APPS = [
     "api",
     "rest_framework",
     "corsheaders",
+
 ]
 
 MIDDLEWARE = [
@@ -102,6 +118,7 @@ DATABASES = {
         "NAME": BASE_DIR / "db.sqlite3",
     }
 }
+
 
 
 # Password validation
@@ -148,3 +165,32 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 CORS_ALLOW_ALL_ORIGINS = True
 
 CORS_ALLOW_CREDENTIALS = True
+
+CORS_ALLOWED_ORIGINS = env.list("CORS_ALLOWED_ORIGINS", default=[])
+
+EMAIL_BACKEND = env("EMAIL_BACKEND", default="django.core.mail.backends.console.EmailBackend")
+
+# read as strings first (may be empty), then coerce if present
+_email_host = env("EMAIL_HOST", default=None)
+_email_port = env("EMAIL_PORT", default=None)  # keep as string to avoid int('') crash
+_email_user = env("EMAIL_HOST_USER", default=None)
+_email_pass = env("EMAIL_HOST_PASSWORD", default=None)
+_email_tls  = env("EMAIL_USE_TLS", default=None)
+
+if _email_host:
+    EMAIL_HOST = _email_host
+if _email_port:
+    EMAIL_PORT = int(_email_port)  # only cast if non-empty
+if _email_user:
+    EMAIL_HOST_USER = _email_user
+if _email_pass:
+    EMAIL_HOST_PASSWORD = _email_pass
+if _email_tls is not None and _email_tls != "":
+    EMAIL_USE_TLS = _email_tls.lower() in ("1", "true", "yes", "on")
+
+DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="webmaster@localhost")
+
+AUTH_USER_MODEL = "users.User"
+
+# AUB email domains to accept (adjust when you confirm exact domains)
+AUB_EMAIL_DOMAINS = ["aub.edu.lb", "mail.aub.edu.lb"]
