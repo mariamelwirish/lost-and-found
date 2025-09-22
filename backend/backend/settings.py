@@ -132,7 +132,7 @@ AUTH_PASSWORD_VALIDATORS = [
         "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
     {
-        "NAME": "accounts.validators.ComplexPasswordValidator"
+        "NAME": "users.validators.ComplexPasswordValidator"
     }
 ]
 
