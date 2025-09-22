@@ -1,6 +1,6 @@
 import secrets
 from django.http import JsonResponse, HttpResponseBadRequest
-from .mailer_sendgrid_http import send_verification_email
+from .mailer_sendgrid_http import send_verification_email_via_sendgrid
 
 def send_test_email(request):
     to = request.GET.get("to")
@@ -8,6 +8,6 @@ def send_test_email(request):
         return HttpResponseBadRequest("Provide ?to=email@example.com")
 
     code = f"{secrets.randbelow(900000) + 100000}"  # random 6-digit code
-    send_verification_email(to, code, full_name="Test User")
+    send_verification_email_via_sendgrid(to, code, full_name="Test User")
 
     return JsonResponse({"sent": True, "to": to, "example_code": code})
