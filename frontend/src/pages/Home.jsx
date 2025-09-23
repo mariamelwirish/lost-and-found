@@ -3,15 +3,14 @@ import { getUser } from "../utils/session";
 
 export default function Home() {
   const user = useMemo(() => getUser(), []);
-  const displayName =
-    (user?.name && user.name.trim()) ||
-    (user?.username && user.username.trim()) ||
-    (user?.email ? user.email.split("@")[0] : "");
+  const displayName = user?.first_name && user?.last_name 
+    ? `${user.first_name} ${user.last_name}`
+    : user?.username || user?.email?.split("@")[0] || "";
 
   return (
     <main className="hero">
       <div className="welcome">
-        Welcome{displayName ? `, ${displayName}` : ""} 👋
+        Welcome{displayName ? `, ${displayName}` : ""}
       </div>
 
       {/* Logo instead of text title */}

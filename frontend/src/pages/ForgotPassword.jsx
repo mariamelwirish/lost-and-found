@@ -23,7 +23,11 @@ export default function ForgotPassword() {
       // Redirect to confirmation page with email in state
       navigate("/reset-password", { state: { email } });
     } catch (err) {
-      setError("Failed to send reset email. Please try again.");
+      if (err.response?.data?.error) {
+        setError(err.response.data.error);
+      } else {
+        setError("Failed to send reset email. Please try again.");
+      }
       console.error("Password reset error:", err);
     } finally {
       setLoading(false);

@@ -31,11 +31,14 @@ export default function Login() {
       localStorage.setItem(ACCESS_TOKEN, access);
       localStorage.setItem(REFRESH_TOKEN, refresh);
 
-      const existing = getUser() || {};
-      setUser({
-        ...existing,
-        email,
-      });
+      // Fetch user profile to get first_name and last_name
+      try {
+        const profileRes = await api.get("/api/users/profile/");
+        setUser(profileRes.data);
+      } catch {
+        // Fallback if profile fetch fails
+        setUser({ email });
+      }
 
       navigate("/home");
     } catch (err) {
