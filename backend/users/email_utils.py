@@ -3,8 +3,7 @@ from typing import Optional
 
 from django.core.mail import send_mail
 from django.conf import settings
-from .mailer_sendgrid_http import send_verification_email_via_sendgrid
-from .mailer_sendgrid_http import send_reset_password_email
+from .mailer_sendgrid_http import send_verification_email_via_sendgrid, send_reset_password_email_via_sendgrid
 
 def send_verification_email(email: str, code: str, full_name: Optional[str] = None):
     """
@@ -60,7 +59,7 @@ def send_reset_password_email(email: str, code: str, full_name: Optional[str] = 
 
     # Preferred path: SendGrid via HTTP when key is present
     if sendgrid_key:
-        return send_reset_password_email(email, code, full_name=full_name)
+        return send_reset_password_email_via_sendgrid(email, code, full_name=full_name)
 
     # Fallback: Django's email backend (console or configured SMTP)
     return send_mail(

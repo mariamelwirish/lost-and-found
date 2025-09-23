@@ -52,7 +52,7 @@ def send_verification_email_via_sendgrid(to_email: str, code: str, full_name: Op
     if resp.status_code != 202:
         raise RuntimeError(f"SendGrid error {resp.status_code}: {resp.text}")
 
-def send_reset_password_email(to_email: str, code: str, full_name: Optional[str] = None) -> None:
+def send_reset_password_email_via_sendgrid(to_email: str, code: str, full_name: Optional[str] = None) -> None:
     api_key = os.environ.get("SENDGRID_API_KEY")
     sender_email = os.environ.get("SENDER_EMAIL")
 

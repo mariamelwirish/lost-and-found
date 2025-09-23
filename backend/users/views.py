@@ -72,13 +72,14 @@ class VerifyCodeView(APIView):
             return Response({"valid": False, "error": "Pending signup expired."}, status=status.HTTP_400_BAD_REQUEST)
 
         # create the actual user
+        # Create user - use create() and set hashed password directly
         user = User.objects.create(
             username=pending.username,
             email=pending.email,
             first_name=pending.first_name,
             last_name=pending.last_name,
             phone=pending.phone,
-            password=pending.password_hash,  # already hashed
+            password=pending.password_hash,  # Already hashed
         )
 
         # mark code used + cleanup pending
@@ -103,13 +104,18 @@ class RequestResetPasswordView(APIView):
             user = User.objects.get(email__iexact=email)
         except User.DoesNotExist:
             # Return same message for security (don't reveal if email exists)
-            return Response({"detail": "If this email exists, a reset link was sent."})
+            return Response({"error": "No account found with this email address."}, status=status.HTTP_400_BAD_REQUEST)
 
         # Create verification code
         vc = VerificationCode.new_code_for_email(email)
-        send_reset_password_email(email, vc.code)
-
-        return Response({"detail": "If this email exists, a reset link was sent."})
+        
+        try:
+            send_reset_password_email(email, vc.code)
+        except Exception as e:
+            # Log the error but don't expose it to the user
+            print(f"Failed to send reset email: {e}")
+        
+        return Response({"detail": "Password reset email sent."})
 
 class ResetPasswordView(APIView):
     authentication_classes = []
@@ -157,3 +163,17 @@ class ResetPasswordView(APIView):
 class EmailTokenObtainPairView(TokenObtainPairView):
     permission_classes = [AllowAny]
     serializer_class = EmailTokenObtainPairSerializer
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_user_profile(request):
+    user = request.user
+    return Response({
+        'username': user.username,
+        'email': user.email,
+        'first_name': user.first_name,
+        'last_name': user.last_name,
+        'phone': getattr(user, 'phone', ''),
+    })
