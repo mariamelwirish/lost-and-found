@@ -394,7 +394,7 @@ a:hover {
   display: none;
   background: none;
   border: 0;
-  font-size: 1.5rem;
+  font-size: 2rem;
   cursor: pointer;
 }
 
@@ -406,24 +406,24 @@ a:hover {
   .inner {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    gap: 0.5rem;
   }
 
   .center-nav,
   .right {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+    gap: 0.5rem;
   }
 
   .mobile-menu {
     position: fixed;
-    top: 76px; /* adjust to your topbar height */
+    top: 76px;
     right: 0;
-    width: 78vw; /* drawer width */
-    max-width: 340px;
+    width: 78vw;
+    max-width: 125px;
     height: calc(100vh - 56px);
-    background: #fff;
+    background: #c4b0cd;
     box-shadow: -12px 0 24px rgba(0, 0, 0, 0.12);
     padding: 16px;
     display: flex;
@@ -457,7 +457,7 @@ a:hover {
     left: 0;
     right: 0;
     padding: 0.75rem 1rem;
-    background: #fff; /* adjust to your theme */
+    background: #b79fc8;
     border-top: 1px solid #eee;
     z-index: 50;
   }
