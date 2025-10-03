@@ -1,6 +1,8 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
+from backend.api.models import ItemPost
+
 User = get_user_model()
 
 class UserSerializer(serializers.ModelSerializer):
@@ -12,3 +14,12 @@ class UserSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         user = User.objects.create_user(**validated_data)
         return user
+
+class ItemPostSerializer(serializers.ModelSerializer):
+    owner = serializers.ReadOnlyField(source="owner.id")
+
+    class Meta:
+        model = ItemPost
+        fields = ['id', 'title', 'description','status', 'location', 'ownder', 'creattionDate', 'updateDate']
+        read_only_fields = ['id', 'owner', 'creationDate', 'updateDate']
+
