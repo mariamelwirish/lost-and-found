@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
-from backend.api.models import ItemPost
+from .models import ItemPost
 
 User = get_user_model()
 

@@ -2,8 +2,8 @@ from django.shortcuts import render
 from django.contrib.auth import get_user_model
 from rest_framework import generics, viewsets, permissions
 
-from backend.api.models import ItemPost
-from backend.api.permissions import IsOwnerOrReadOnly
+from .models import ItemPost
+from .permissions import IsOwnerOrReadOnly
 from .serializers import ItemPostSerializer, UserSerializer
 from rest_framework.permissions import IsAuthenticated, AllowAny
 
