@@ -33,9 +33,7 @@ a {
   color: inherit;
   text-decoration: none;
 }
-a:hover {
-  text-decoration: underline;
-}
+
 
 /* ================= NAVBAR ================= */
 .topbar {
@@ -529,15 +527,15 @@ a:hover {
 }
 
 /* Equal width, centered label, purple by default */
-.subnav .tab {
+/*.subnav .tab {
   display: inline-flex;
-  justify-content: center;       /* center text */
+  justify-content: center;       
   align-items: center;
-  width: 120px;                  /* <-- same size boxes */
+  width: 120px;                  
   padding: 8px 12px;
-  font-size: var(--tab-font);    /* smaller font */
+  font-size: var(--tab-font);    
   font-weight: 400;
-  background: #C0ABC9;           /* default purple */
+  background: #C0ABC9;          
   border: 1px solid #C0ABC9;
   border-radius: 5px;
   color: #fff;
@@ -547,9 +545,57 @@ a:hover {
 }
 .subnav .tab:hover { text-decoration: none; filter: brightness(.97); }
 .subnav .tab.active {
-  background: #9C81A8;           /* darker when active */
+  background: #9C81A8;           
   border-color: #9C81A8;
+}*/
+/* ---- Sub-nav tabs: default = light purple, hover = slightly darker, active = dark purple ---- */
+:root {
+  --tab-bg: #C0ABC9;        /* light purple (default) */
+  --tab-bg-hover: #B79FC8;  /* hover */
+  --tab-bg-active: #9C81A8; /* active (dark) */
 }
+
+
+.subnav-inner {
+  max-width: none;
+  margin-left: 30px;
+  padding-left: var(--gutter, 12px);
+  padding-right: 16px;
+}
+
+.tab {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 120px;
+  gap: 6px;
+  padding: 8px 12px;
+  border: 1px solid var(--tab-bg);
+  border-radius: 5px;
+  background: var(--tab-bg);
+  color: #17313E;            /* readable on the light purple */
+  font-weight: 300;
+  font-size: var(--tab-font);
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 150ms ease, border-color 150ms ease, transform 50ms ease;
+}
+
+.tab:hover {
+  background: var(--tab-bg-hover);
+  border-color: var(--tab-bg-hover);
+}
+
+.tab:active {
+  transform: translateY(1px);
+}
+
+.tab.active {
+  background: var(--tab-bg-active);
+  border-color: var(--tab-bg-active);
+  color: #fff;               /* white text on dark purple */
+}
+
 /* === Floating "Create Post" button (bottom-right) === */
 .fab-wrap {
   position: fixed;
@@ -601,4 +647,15 @@ a:hover {
 .create-modal {
   position: relative;
   z-index: 50;
+}
+/* Read-only value block (used in ViewPost) */
+.ro {
+  padding: 10px 12px;
+  border: 1px solid var(--muted, #E5E5E5);
+  background: #faf7f4;
+  border-radius: 8px;
+}
+.nav a.active {
+  font-weight: 800;
+  text-decoration: none;
 }

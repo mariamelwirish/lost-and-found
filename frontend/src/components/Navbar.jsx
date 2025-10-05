@@ -1,3 +1,4 @@
+// frontend/src/components/Navbar.jsx
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { clearUser } from "../utils/session";
 import { useState } from "react";
@@ -5,18 +6,17 @@ import { Squash as Hamburger } from "hamburger-react";
 
 export default function Navbar() {
   const { pathname } = useLocation();
-  // Treat both "/" and "/home" as the landing page
   const isHomePage = pathname === "/" || pathname === "/home";
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
+
   const handleLogout = () => {
-    // Remove the saved user used by the Home greeting
     clearUser();
-    // (Optional) also clear your auth token/cookies, if any:
-    // localStorage.removeItem("token");
-    // document.cookie = "token=; Max-Age=0; path=/;";
     navigate("/login");
   };
+
+  // helper for active styling
+  const active = ({ isActive }) => (isActive ? "active" : "");
 
   return (
     <header className="topbar">
@@ -24,14 +24,10 @@ export default function Navbar() {
         <div className="inner">
           {/* LEFT: brand (link to "/") */}
           <Link to="/" className="brand" aria-label="Lost & Found">
-            <img
-              src="/lostfound-dark.png"
-              alt="lostfound"
-              className="brand-img"
-            />
+            <img src="/lostfound-dark.png" alt="lostfound" className="brand-img" />
           </Link>
 
-          {/* Mobile View */}
+          {/* Mobile toggle */}
           <div className="nav-toggle">
             <Hamburger
               toggled={open}
@@ -42,18 +38,28 @@ export default function Navbar() {
             />
           </div>
 
-          {/* CENTER: menu (kept simple so CSS centers it) */}
+          {/* CENTER + RIGHT (mobile + desktop) */}
           <div className={`mobile-menu ${open ? "open" : ""}`}>
+            {/* CENTER: menu */}
             <nav className="nav center-nav" onClick={() => setOpen(false)}>
-              <NavLink to="/">Home</NavLink>
+              <NavLink to="/" end className={active}>
+                Home
+              </NavLink>
               <span className="sep" />
-              <NavLink to="/about">About</NavLink>
+              <NavLink to="/about" className={active}>
+                About
+              </NavLink>
               <span className="sep" />
-              <a className="disabled">Lost</a>
+              <NavLink to="/lost" className={active}>
+                Lost
+              </NavLink>
               <span className="sep" />
-              <a className="disabled">Found</a>
+              <NavLink to="/found" className={active}>
+                Found
+              </NavLink>
             </nav>
 
+            {/* RIGHT: auth */}
             <div className="nav right" onClick={() => setOpen(false)}>
               {isHomePage ? (
                 <a

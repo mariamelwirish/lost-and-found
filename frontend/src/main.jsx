@@ -6,6 +6,10 @@ import AppLayout from "./layouts/AppLayout.jsx";
 
 // PAGES
 import Lost from "./pages/Lost.jsx";
+import MyLost from "./pages/MyLost.jsx";
+import Found from "./pages/Found.jsx";            // ← add
+import MyFound from "./pages/MyFound.jsx";
+import ViewPost from "./pages/ViewPost.jsx";
 import CreatePost from "./pages/CreatePost.jsx";
 import Login from "./pages/Login.jsx";
 import Signup from "./pages/Signup.jsx";
@@ -26,6 +30,12 @@ ReactDOM.createRoot(document.getElementById("root")).render(
 
           {/* PUBLIC routes you’re building */}
           <Route path="/lost" element={<Lost />} />
+          <Route path="/lost/mine" element={<MyLost />} />
+          <Route path="/found" element={<Found />} />
+          <Route path="/found/mine" element={<MyFound />} />
+
+          {/* View one post (read-only) */}
+          <Route path="/posts/:id" element={<ViewPost />} />
           <Route path="/my-posts/create" element={<CreatePost />} />
 
           {/* Auth pages (still reachable if you need them) */}
