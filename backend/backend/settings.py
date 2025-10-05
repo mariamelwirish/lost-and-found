@@ -23,11 +23,18 @@ load_dotenv()
 # BASE_DIR = Path(__file__).resolve().parent.parent
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+# env = environ.Env(
+#     DJANGO_DEBUG=(bool, False),
+# )
 env = environ.Env(
-    DJANGO_DEBUG=(bool, False),
+    DJANGO_DEBUG=(bool, True),  # True locally; we’ll set False on Render
+    DJANGO_ALLOWED_HOSTS=(str, ""),
+    DJANGO_CSRF_TRUSTED=(str, ""),
+    CORS_ALLOWED_ORIGINS=(str, ""),
+    DB_SSL_REQUIRE=(bool, False),  # set True on Render/Neon
 )
-
 environ.Env.read_env(BASE_DIR / ".env")
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
@@ -35,9 +42,14 @@ environ.Env.read_env(BASE_DIR / ".env")
 # SECURITY WARNING: keep the secret key used in production secret!
 # SECRET_KEY = "django-insecure-*21upvyq-skrf17_c!)#5_)oslz78n5(&2p(m(ec62ubr%*w!p"
 
-SECRET_KEY = env("DJANGO_SECRET_KEY")
+SECRET_KEY = env("DJANGO_SECRET_KEY", default="dev-insecure")
 DEBUG = env("DJANGO_DEBUG")
-ALLOWED_HOSTS = env.list("DJANGO_ALLOWED_HOSTS", default=[])
+ALLOWED_HOSTS = (
+    ["*"] if DEBUG else [h for h in env("DJANGO_ALLOWED_HOSTS").split(",") if h]
+)
+
+# CSRF trusted origins (set after deploy, e.g. https://your-api.onrender.com, https://your-frontend.vercel.app)
+CSRF_TRUSTED_ORIGINS = [u for u in env("DJANGO_CSRF_TRUSTED").split(",") if u]
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # DEBUG = True
@@ -75,13 +87,14 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
+    "corsheaders.middleware.CorsMiddleware", 
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "corsheaders.middleware.CorsMiddleware",
 ]
 
 ROOT_URLCONF = "backend.urls"
@@ -122,6 +135,7 @@ DATABASES = {
         'PASSWORD': os.getenv('DB_PASSWORD', ''),
         'HOST': os.getenv('DB_HOST', '127.0.0.1'),
         'PORT': os.getenv('DB_PORT', '5432'),
+        "OPTIONS": {"sslmode": "require"} if env("DB_SSL_REQUIRE") else {},
     }
 }
 
@@ -171,7 +185,10 @@ CORS_ALLOW_ALL_ORIGINS = True
 
 CORS_ALLOW_CREDENTIALS = True
 
-CORS_ALLOWED_ORIGINS = env.list("CORS_ALLOWED_ORIGINS", default=[])
+# CORS_ALLOWED_ORIGINS = env.list("CORS_ALLOWED_ORIGINS", default=[])
+
+# Also support an allowlist via env for prod:
+CORS_ALLOWED_ORIGINS = [u for u in env("CORS_ALLOWED_ORIGINS").split(",") if u]
 
 EMAIL_BACKEND = env("EMAIL_BACKEND", default="django.core.mail.backends.console.EmailBackend")
 
@@ -199,3 +216,17 @@ AUTH_USER_MODEL = "users.User"
 
 # AUB email domains to accept
 AUB_EMAIL_DOMAINS = ["aub.edu.lb", "mail.aub.edu"]
+
+STATIC_URL = "/static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"
+
+# Django 4.2+ recommended setting for Whitenoise:
+STORAGES = {
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"
+    }
+}
+
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+SESSION_COOKIE_SECURE = not DEBUG
+CSRF_COOKIE_SECURE = not DEBUG
