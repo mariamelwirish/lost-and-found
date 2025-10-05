@@ -1,5 +1,6 @@
 // src/utils/session.js
 export const USER_KEY = "lf_user";
+import { ACCESS_TOKEN, REFRESH_TOKEN } from "../constants";
 
 export function getUser() {
   try {
@@ -21,5 +22,7 @@ export function clearUser() {
     localStorage.removeItem(USER_KEY);
     localStorage.removeItem("access_token");
     localStorage.removeItem("refresh_token");
+    localStorage.removeItem(ACCESS_TOKEN);
+    localStorage.removeItem(REFRESH_TOKEN);
   } catch {}
 }
