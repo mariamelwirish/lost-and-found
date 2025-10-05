@@ -8,6 +8,7 @@ import ItemsPage from "./pages/Items";              // ⬅ add this
 import CreatePostPage from "./pages/CreatePost.jsx"; // add this import
 
 export default function App() {
+  console.log(import.meta.env.VITE_API_URL); 
   return (
     <Router>
       <Navbar />

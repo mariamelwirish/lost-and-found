@@ -576,3 +576,301 @@ a:hover {
 @media (max-width: 640px) {
   .cp-grid { grid-template-columns: 1fr; }
 }
+
+
+.lf-fab {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  text-decoration: none;
+  font-size: 28px;
+  background: #4c4c4c;
+  color: #fff;
+  box-shadow: 0 8px 24px rgba(0,0,0,.18);
+}
+.lf-fab:focus-visible { outline: 3px solid #000; outline-offset: 3px; }
+
+
+.lf-nav { position: sticky; top: 0; z-index: 10; background: #c4b1cf; padding: 14px 20px; display: flex; align-items: center; gap: 16px; }
+.lf-nav .nav { display: flex; align-items: center; gap: 12px; }
+.lf-nav .brand { font-weight: 700; text-decoration: none; color: #fff; }
+.lf-nav a { text-decoration: none; color: #fff; opacity: .9; }
+.lf-nav a.is-active { opacity: 1; text-decoration: underline; }
+.lf-nav .sep { width: 1px; height: 16px; background: rgba(255,255,255,.6); display: inline-block; }
+
+.lf-fab {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  text-decoration: none;
+  font-size: 28px;
+  background: #4c4c4c;
+  color: #fff;
+  box-shadow: 0 8px 24px rgba(0,0,0,.18);
+}
+.lf-fab:focus-visible { outline: 3px solid #000; outline-offset: 3px; }
+
+.nav-link-button {
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+/* Keep look like your screenshot (only if you need it) */
+.nav-link { text-decoration: none; color: inherit; }
+.nav-link.active { font-weight: 700; text-decoration: underline; }
+.sep { display: inline-block; width: 1px; height: 18px; margin: 0 16px; background: rgba(0,0,0,.25); }
+
+
+/* Logo size */
+.brand-logo {
+  height: 22px;      /* target height */
+  width: 145px;      /* target width */
+  object-fit: contain;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+/* Optional: tweak header padding if it still feels tall */
+.lf-nav { padding: 10px 20px; }   /* adjust to taste */
+
+/* Layout: push "right" group to the far right */
+.lf-nav {
+  display: flex;
+  align-items: center;
+}
+.lf-nav .left { display: flex; align-items: center; }
+.lf-nav .center-nav { 
+  display: flex; 
+  align-items: center; 
+  gap: 0;               /* dividers handle spacing */
+  margin: 0 auto;       /* keeps center group centered */
+}
+.lf-nav .right {
+  margin-left: auto;    /* << pushes Log out to the far right */
+  display: flex; 
+  align-items: center;
+}
+
+/* Make header links black */
+.lf-nav .nav-link,
+.lf-nav .brand,
+.lf-nav .brand:visited,
+.lf-nav .nav-link:visited {
+  color: #111827;       /* near-black */
+  text-decoration: none;
+}
+
+/* Active state like your screenshot (bold + underline) */
+.lf-nav .nav-link.active {
+  font-weight: 700;
+  text-decoration: underline;
+}
+
+/* Divider line between items */
+.sep {
+  display: inline-block;
+  width: 1px;
+  height: 18px;
+  margin: 0 16px;
+  background: rgba(0,0,0,0.25);
+}
+
+/* Logo size (you already added this—keep/tweak as needed) */
+.brand-logo {
+  height: 22px;
+  width: 145px;       /* or remove for auto width */
+  object-fit: contain;
+  vertical-align: middle;
+  display: inline-block;
+}
+
+/* ===== NAVBAR LAYOUT & COLORS ===== */
+.lf-nav{
+  display:flex;
+  align-items:center;
+  padding:10px 20px;           /* keep your existing padding if you prefer */
+}
+
+/* left group (logo) stays as-is */
+.lf-nav .left{ display:flex; align-items:center; }
+
+/* move menu close to logo (no centering) */
+.lf-nav .center-nav{
+  display:flex;
+  align-items:center;
+  gap:0;                       /* dividers handle spacing */
+  margin-left: 16px;           /* <<< distance from logo to first link */
+}
+
+/* push logout all the way to the right */
+.lf-nav .right{
+  margin-left:auto;            /* <<< keeps Log out at far right */
+  display:flex; align-items:center;
+}
+
+/* make links black */
+.lf-nav .nav-link,
+.lf-nav .brand,
+.lf-nav .nav-link:visited,
+.lf-nav .brand:visited{
+  color:#111;
+  text-decoration:none;
+}
+
+/* active state (like your screenshot) */
+.lf-nav .nav-link.active{
+  font-weight:700;
+  text-decoration:underline;
+}
+
+/* black divider between words */
+.sep{
+  display:inline-block;
+  width:1px;
+  height:18px;
+  margin:0 16px;
+  background:#111;             /* <<< black line */
+}
+
+/* logo size (keep what you already set) */
+.brand-logo{
+  height:22px;
+  width:auto;                  /* or set 145px if you want fixed width */
+  object-fit:contain;
+  vertical-align:middle;
+  display:inline-block;
+}
+
+
+/* --- Force black dividers in the navbar --- */
+header.lf-nav .sep {
+  background-color: #000 !important;  /* span-based divider */
+  border-color: #000 !important;      /* just in case it's styled with a border */
+  opacity: 1 !important;              /* override any faded/rgba rule */
+}
+
+/* If your theme draws dividers via borders on links instead of a <span class="sep"> */
+header.lf-nav .nav-link + .nav-link {
+  border-left: 1px solid #000 !important;
+  padding-left: 16px;   /* match your spacing */
+  margin-left: 16px;
+}
+/* --- Nav link weight (no bold) --- */
+header.lf-nav .nav-link { 
+  font-weight: 400 !important;
+}
+
+header.lf-nav .nav-link.active {
+  font-weight: 400 !important;   /* keep same weight for active */
+  text-decoration: underline;     /* keep the underline */
+}
+
+/* --- FORCE nav links to normal weight, even when active --- */
+header.lf-nav a.nav-link,
+header.lf-nav a.nav-link:link,
+header.lf-nav a.nav-link:visited {
+  font-weight: 400 !important;
+}
+
+header.lf-nav a.nav-link.active,
+header.lf-nav a.nav-link[aria-current="page"] {
+  font-weight: 400 !important;          /* no bold on active */
+  text-decoration: underline;           /* keep underline for active */
+}
+
+/* If underline is from a border, normalize it too */
+header.lf-nav a.nav-link.active,
+header.lf-nav a.nav-link[aria-current="page"] {
+  border: none !important;
+}
+
+/* ===== Create Post layout ===== */
+.cp-wrap { max-width: 1100px; margin: 0 auto; padding: 16px 20px 28px; }
+.cp-header { display: flex; align-items: center; gap: 8px; justify-content: center; color: #fff; }
+.cp-header h1 { font-size: 18px; font-weight: 700; margin: 0; }
+.cp-back { position: absolute; left: 14px; top: 10px; border: 0; background: transparent; color: #fff; font-size: 22px; cursor: pointer; }
+
+.cp-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;   /* left bigger than right */
+  gap: 18px;
+  margin-top: 12px;
+}
+
+/* Cards */
+.cp-upload, .cp-form {
+  background: #fff;
+  border: 1px solid rgba(0,0,0,.07);
+  border-radius: 10px;
+  box-shadow: 0 1px 0 rgba(0,0,0,.05), 0 6px 18px rgba(0,0,0,.03);
+}
+
+/* Upload area */
+.cp-upload {
+  min-height: 520px;
+  display: grid;
+  place-items: center;
+  padding: 14px;
+  border-style: dashed;
+  border-width: 2px;
+  border-color: rgba(0,0,0,.15);
+  cursor: pointer;
+}
+.cp-upload.is-drag { border-color: #9c88aa; background: rgba(156, 136, 170, 0.06); }
+.cp-upload-preview { width: 100%; height: 100%; object-fit: contain; border-radius: 6px; }
+.cp-upload-empty { text-align: center; color: #444; }
+.cp-upload-icon { font-size: 36px; margin-bottom: 8px; }
+.cp-upload-title { font-weight: 600; margin-bottom: 4px; }
+.cp-upload-sub { font-size: 13px; color: #6b7280; }
+
+/* Right side form */
+.cp-form { padding: 14px; display: grid; grid-template-rows: auto; gap: 12px; }
+.cp-field { display: grid; gap: 6px; position: relative; }
+.cp-field--desc { margin-top: 4px; }
+.cp-label { font-size: 12px; color: #6b7280; }
+.cp-input {
+  width: 100%;
+  border: 1px solid rgba(0,0,0,.15);
+  border-radius: 10px;
+  background: #fafafa;
+  padding: 10px 12px;
+  font: inherit;
+  color: #111827;
+  outline: none;
+}
+.cp-input:focus { border-color: #9c88aa; box-shadow: 0 0 0 3px rgba(156,136,170,.22); background: #fff; }
+.cp-textarea { resize: vertical; min-height: 120px; }
+.cp-help { position: absolute; right: 8px; bottom: 8px; font-size: 12px; color: #6b7280; }
+
+/* Actions */
+.cp-actions {
+  margin-top: 8px;
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+.btn { border: 0; padding: 10px 16px; border-radius: 12px; font-weight: 600; cursor: pointer; }
+.btn-ghost { background: #ede7f2; color: #111; }
+.btn-ghost:hover { filter: brightness(.97); }
+.btn-primary { background: #bfa9cf; color: #fff; }
+.btn-primary:disabled { opacity: .5; cursor: not-allowed; }
+
+/* Responsive */
+@media (max-width: 880px){
+  .cp-grid { grid-template-columns: 1fr; }
+  .cp-upload { min-height: 300px; }
+}
