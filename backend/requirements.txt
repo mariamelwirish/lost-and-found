@@ -4,10 +4,11 @@ Django
 django-cors-headers
 djangorestframework
 djangorestframework-jwt
+djangorestframework-simplejwt
 PyJWT
 pytz
 sqlparse
-# psycopg2-binary
+psycopg[binary]
 python-dotenv
 pip
 django-environ==0.11.2
