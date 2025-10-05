@@ -1,6 +1,16 @@
 import axios from 'axios';
 import {ACCESS_TOKEN, REFRESH_TOKEN} from './constants.js'
 
+const API_BASE = import.meta.env.VITE_API_BASE;
+
+export async function apiGet(path, opts = {}) {
+  const res = await fetch(`${API_BASE}${path}`, { credentials: "include", ...opts });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+// usage: await apiGet("/health/");
+
+
 const api = axios.create({
     baseURL: import.meta.env.VITE_API_URL
 });
