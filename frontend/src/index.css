@@ -659,3 +659,59 @@ a {
   font-weight: 800;
   text-decoration: none;
 }
+/* ===== Make Create Post card fit the screen and be responsive ===== */
+
+/* Configure rough heights of bars (tweak if yours differ) */
+:root{
+  --topbar-h: 56px;   /* your purple navbar height */
+  --subnav-h: 48px;   /* the Posts/My Posts bar */
+  --toolbar-h: 56px;  /* the "Create Post" toolbar on the card */
+  --page-pad: 24px;   /* vertical padding around the card */
+}
+
+/* Keep your existing .create-shell/.create-toolbar styles, then add: */
+.create-toolbar {
+  position: sticky;                         /* keeps toolbar visible while card scrolls */
+  top: calc(var(--topbar-h) + var(--subnav-h));
+  z-index: 3;
+}
+
+/* Let the card (create-grid) fit the viewport and scroll internally */
+.create-grid{
+  /* existing styles … */
+  max-height: calc(
+    100vh - var(--topbar-h) - var(--subnav-h) - var(--toolbar-h) - (var(--page-pad) * 2)
+  );
+  overflow: auto;                            /* scroll INSIDE the card, not the page */
+}
+
+/* Give the left image area a reasonable minimum, but not too big */
+.upload-pane{
+  min-height: 380px;
+}
+
+/* ---------- Responsive breakpoints ---------- */
+
+/* Medium screens: reduce card padding a bit */
+@media (max-width: 1200px){
+  .create-grid{ padding: 16px; gap: 16px; }
+}
+
+/* Tablets & small laptops: stack columns, lower min-heights */
+@media (max-width: 1024px){
+  .create-grid{
+    grid-template-columns: 1fr;              /* stack image and form */
+    max-height: calc(
+      100vh - var(--topbar-h) - var(--subnav-h) - var(--toolbar-h) - (var(--page-pad) * 2)
+    );
+  }
+  .upload-pane{ min-height: 300px; }
+}
+
+/* Phones: tighter paddings and thumbnails */
+@media (max-width: 640px){
+  :root{ --page-pad: 16px; }
+  .create-grid{ padding: 12px; gap: 12px; }
+  .upload-pane{ min-height: 240px; }
+  .thumb{ width: 32px; height: 32px; }
+}
