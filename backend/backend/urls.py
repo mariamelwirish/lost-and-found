@@ -7,6 +7,11 @@ from users.views import EmailTokenObtainPairView, TokenRefreshView
 
 router = DefaultRouter()
 router.register(r'posts', ItemPostViewSet, basename='posts')
+# backend/urls.py
+from django.urls import path
+from django.http import JsonResponse
+
+def health(_): return JsonResponse({"status": "ok"})
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -17,4 +22,6 @@ urlpatterns = [
     path("api/users/", include("users.urls")),
     path("api/", include(router.urls)),
     path('debug/send-test-email/', send_test_email),
+    path("health/", health),
+
 ]

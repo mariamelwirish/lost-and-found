@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from pathlib import Path
 from datetime import timedelta
+import dj_database_url
 from dotenv import load_dotenv
 import os
 import environ
@@ -43,13 +44,13 @@ environ.Env.read_env(BASE_DIR / ".env")
 # SECRET_KEY = "django-insecure-*21upvyq-skrf17_c!)#5_)oslz78n5(&2p(m(ec62ubr%*w!p"
 
 SECRET_KEY = env("DJANGO_SECRET_KEY", default="dev-insecure")
-DEBUG = env("DJANGO_DEBUG")
+DEBUG = os.getenv("DJANGO_DEBUG", "0") == "1"
 ALLOWED_HOSTS = (
     ["*"] if DEBUG else [h for h in env("DJANGO_ALLOWED_HOSTS").split(",") if h]
 )
 
 # CSRF trusted origins (set after deploy, e.g. https://your-api.onrender.com, https://your-frontend.vercel.app)
-CSRF_TRUSTED_ORIGINS = [u for u in env("DJANGO_CSRF_TRUSTED").split(",") if u]
+CSRF_TRUSTED_ORIGINS = [f"https://{h.lstrip('.')}" for h in ALLOWED_HOSTS if h]
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # DEBUG = True
@@ -79,6 +80,7 @@ INSTALLED_APPS = [
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
+    "whitenoise.runserver_nostatic",
     "django.contrib.staticfiles",
     "api",
     "rest_framework",
@@ -127,17 +129,22 @@ WSGI_APPLICATION = "backend.wsgi.application"
 #     }
 # }
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': os.getenv('DB_NAME', 'lf_db'),
+#         'USER': os.getenv('DB_USER', 'lf_user'),
+#         'PASSWORD': os.getenv('DB_PASSWORD', ''),
+#         'HOST': os.getenv('DB_HOST', '127.0.0.1'),
+#         'PORT': os.getenv('DB_PORT', '5432'),
+#         "OPTIONS": {"sslmode": "require"} if env("DB_SSL_REQUIRE") else {},
+#     }
+# }
+
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('DB_NAME', 'lf_db'),
-        'USER': os.getenv('DB_USER', 'lf_user'),
-        'PASSWORD': os.getenv('DB_PASSWORD', ''),
-        'HOST': os.getenv('DB_HOST', '127.0.0.1'),
-        'PORT': os.getenv('DB_PORT', '5432'),
-        "OPTIONS": {"sslmode": "require"} if env("DB_SSL_REQUIRE") else {},
-    }
+    "default": dj_database_url.parse(os.getenv("DATABASE_URL"), conn_max_age=600, ssl_require=True)
 }
+
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -174,7 +181,8 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = "static/"
+
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
@@ -221,11 +229,13 @@ STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
 # Django 4.2+ recommended setting for Whitenoise:
-STORAGES = {
-    "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"
-    }
-}
+# STORAGES = {
+#     "staticfiles": {
+#         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"
+#     }
+# }
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
 
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 SESSION_COOKIE_SECURE = not DEBUG
