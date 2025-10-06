@@ -109,7 +109,7 @@ export default function Signup() {
           phone: form.phone
         });
 
-        navigate("/");
+        navigate("/login");
       } catch (err) {
         setError(err.response?.data?.error || "Verification failed.");
       }

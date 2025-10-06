@@ -1,5 +1,6 @@
 // frontend/src/components/PostsList.jsx
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import api from "../api";
 
 /**
@@ -8,6 +9,7 @@ import api from "../api";
  *  - mine: boolean   // true => only my posts
  */
 export default function PostsList({ kind, mine }) {
+  const navigate = useNavigate();
   const [items, setItems] = useState([]);   // ✅ start as array
   const [err, setErr] = useState("");
   const [loading, setLoading] = useState(true);
@@ -16,9 +18,12 @@ export default function PostsList({ kind, mine }) {
     let alive = true;
     (async () => {
       try {
+        console.log(`Fetching posts with kind: ${kind}, mine: ${mine}`); // Debug log
         const res = await api.get("/api/posts/", {
           params: { kind, mine: mine ? 1 : 0 },
         });
+
+        console.log("API response:", res.data); // Debug log
 
         // ✅ normalize to an array no matter the payload shape
         const data = res?.data;
@@ -37,7 +42,7 @@ export default function PostsList({ kind, mine }) {
         setErr("");
       } catch (e) {
         if (!alive) return;
-        setErr("Couldn’t load posts (showing empty state).");
+        setErr("Couldn't load posts (showing empty state).");
         setItems([]); // ✅ still renderable
       } finally {
         if (alive) setLoading(false);
@@ -81,9 +86,28 @@ export default function PostsList({ kind, mine }) {
     <main className="container">
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: 16 }}>
         {items.map((p, idx) => (
-          <article key={p.id ?? p._id ?? idx} style={{ background: "#fff", border: "1px solid var(--muted, #e5e5e5)", borderRadius: 10, overflow: "hidden" }}>
+          <article 
+            key={p.id ?? p._id ?? idx} 
+            style={{ 
+              background: "#fff", 
+              border: "1px solid var(--muted, #e5e5e5)", 
+              borderRadius: 10, 
+              overflow: "hidden",
+              cursor: "pointer",
+              transition: "transform 0.2s, box-shadow 0.2s"
+            }}
+            onClick={() => navigate(`/posts/${p.id}`)}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = "translateY(-2px)";
+              e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.1)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = "translateY(0)";
+              e.currentTarget.style.boxShadow = "none";
+            }}
+          >
             {p.images?.length ? (
-              <img src={p.images[0]} alt={p.title || "post"} style={{ width: "100%", height: 160, objectFit: "cover" }} />
+              <img src={p.images[0].image} alt={p.title || "post"} style={{ width: "100%", height: 160, objectFit: "cover" }} />
             ) : (
               <div style={{ height: 160, background: "#f3edf7" }} />
             )}

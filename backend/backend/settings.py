@@ -44,7 +44,7 @@ environ.Env.read_env(BASE_DIR / ".env")
 # SECRET_KEY = "django-insecure-*21upvyq-skrf17_c!)#5_)oslz78n5(&2p(m(ec62ubr%*w!p"
 
 SECRET_KEY = env("DJANGO_SECRET_KEY", default="dev-insecure")
-DEBUG = os.getenv("DJANGO_DEBUG", "0") == "1"
+DEBUG = env.bool("DJANGO_DEBUG", default=True)
 ALLOWED_HOSTS = (
     ["*"] if DEBUG else [h for h in env("DJANGO_ALLOWED_HOSTS").split(",") if h]
 )
@@ -142,7 +142,7 @@ WSGI_APPLICATION = "backend.wsgi.application"
 # }
 
 DATABASES = {
-    "default": dj_database_url.parse(os.getenv("DATABASE_URL"), conn_max_age=600, ssl_require=True)
+    "default": dj_database_url.parse(os.getenv("DATABASE_URL"), conn_max_age=600, ssl_require=False)
 }
 
 
@@ -188,6 +188,15 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# Static files
+STATIC_URL = "/static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"
+
+# Media files
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
+
 
 CORS_ALLOW_ALL_ORIGINS = True
 
