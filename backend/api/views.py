@@ -23,6 +23,11 @@ class ItemPostViewSet(viewsets.ModelViewSet):
     serializer_class = ItemPostSerializer
 
     def get_permissions(self):
-        if (self.action in ["list", "retrieve"]):
-            return [permissions.AllowAny]
-        return [IsAuthenticated()], IsOwnerOrReadOnly
+       if self.action in ["list", "retrieve"]:
+         permission_classes = [permissions.AllowAny]
+       else:
+         permission_classes = [IsAuthenticated, IsOwnerOrReadOnly]
+       return [p() for p in permission_classes]
+    
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
