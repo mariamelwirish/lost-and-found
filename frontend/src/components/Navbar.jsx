@@ -1,14 +1,14 @@
 // frontend/src/components/Navbar.jsx
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
-import { clearUser } from "../utils/session";
+import { clearUser, getUser } from "../utils/session";
 import { useState } from "react";
 import { Squash as Hamburger } from "hamburger-react";
 
 export default function Navbar() {
   const { pathname } = useLocation();
-  const isHomePage = pathname === "/" || pathname === "/home";
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
+  const user = getUser();
 
   const handleLogout = () => {
     clearUser();
@@ -22,8 +22,8 @@ export default function Navbar() {
     <header className="topbar">
       <div className="bar">
         <div className="inner">
-          {/* LEFT: brand (link to "/") */}
-          <Link to="/" className="brand" aria-label="Lost & Found">
+          {/* LEFT: brand (link to "/home") */}
+          <Link to="/home" className="brand" aria-label="Lost & Found">
             <img src="/lostfound-dark.png" alt="lostfound" className="brand-img" />
           </Link>
 
@@ -42,12 +42,8 @@ export default function Navbar() {
           <div className={`mobile-menu ${open ? "open" : ""}`}>
             {/* CENTER: menu */}
             <nav className="nav center-nav" onClick={() => setOpen(false)}>
-              <NavLink to="/" end className={active}>
+              <NavLink to="/home" className={active}>
                 Home
-              </NavLink>
-              <span className="sep" />
-              <NavLink to="/about" className={active}>
-                About
               </NavLink>
               <span className="sep" />
               <NavLink to="/lost" className={active}>
@@ -61,18 +57,18 @@ export default function Navbar() {
 
             {/* RIGHT: auth */}
             <div className="nav right" onClick={() => setOpen(false)}>
-              {isHomePage ? (
+              {user ? (
                 <a
-                  href="/login"
+                  href="#"
                   onClick={(e) => {
                     e.preventDefault();
                     handleLogout();
                   }}
                 >
-                  Log out
+                  Logout
                 </a>
               ) : (
-                <Link to="/login">Log in</Link>
+                <Link to="/login">Login</Link>
               )}
             </div>
           </div>

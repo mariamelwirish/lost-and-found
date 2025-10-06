@@ -715,3 +715,31 @@ a {
   .upload-pane{ min-height: 240px; }
   .thumb{ width: 32px; height: 32px; }
 }
+
+/* Floating Action Button */
+.floating-action-btn {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #6366f1;
+  color: white;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+  transition: all 0.2s ease;
+  z-index: 1000;
+}
+
+.floating-action-btn:hover {
+  background: #5855eb;
+  transform: scale(1.1);
+}
+
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;

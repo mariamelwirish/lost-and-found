@@ -1,9 +1,11 @@
 // frontend/src/layouts/AppLayout.jsx
 import Navbar from "../components/Navbar";
 import { NavLink, Outlet, useLocation, Link } from "react-router-dom"; // <-- Link added
+import { getUser } from "../utils/session";
 
 export default function AppLayout() {
   const { pathname } = useLocation();
+  const user = getUser();
 
   // Show the tabs on Lost/Found sections (including /mine)
   const showTabs = pathname.startsWith("/lost") || pathname.startsWith("/found");
@@ -40,10 +42,15 @@ export default function AppLayout() {
 
       <Outlet />
 
-      {/* Floating Create Post (only on Lost/Found pages) */}
-      {showTabs && (
+      {/* Floating Create Post (only on Lost/Found pages and if authenticated) */}
+      {showTabs && user && (
         <div className="fab-wrap">
-          <Link to="/my-posts/create" className="fab" aria-label="Create Post">
+          <Link 
+            to="/my-posts/create" 
+            state={{ type: base }}
+            className="fab" 
+            aria-label="Create Post"
+          >
             <span className="fab-plus">+</span>
           </Link>
           <div className="fab-label">Create Post</div>

@@ -1,24 +1,51 @@
-from django.contrib.auth import get_user_model
 from rest_framework import serializers
-from .models import ItemPost
+from django.contrib.auth import get_user_model
+from .models import ItemPost, ItemImage
 
 User = get_user_model()
 
 class UserSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True)
+
     class Meta:
         model = User
-        fields = ['id', 'username', 'password']
-        extra_kwargs = {'password': {'write_only': True}}
+        fields = ["id", "username", "password", "email", "first_name", "last_name"]
 
     def create(self, validated_data):
         user = User.objects.create_user(**validated_data)
         return user
 
+class ItemImageSerializer(serializers.ModelSerializer):
+    image = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = ItemImage
+        fields = ["id", "image"]
+    
+    def get_image(self, obj):
+        request = self.context.get('request')
+        if request:
+            return request.build_absolute_uri(obj.image.url)
+        return obj.image.url
 
 class ItemPostSerializer(serializers.ModelSerializer):
-    owner = serializers.ReadOnlyField(source="owner.id")
+    images = ItemImageSerializer(many=True, read_only=True)
+    uploaded_images = serializers.ListField(
+        child=serializers.ImageField(), write_only=True, required=False
+    )
+    owner_name = serializers.CharField(source="owner.get_full_name", read_only=True)
 
     class Meta:
         model = ItemPost
-        fields = ['id', 'title', 'description', 'status', 'location', 'owner', 'creationDate', 'updateDate']
-        read_only_fields = ['id', 'owner', 'creationDate', 'updateDate']
+        fields = ["id", "title", "description", "status", "location", "date", 
+                 "owner", "owner_name", "creationDate", "updateDate", "images", "uploaded_images"]
+        read_only_fields = ["owner", "creationDate", "updateDate"]
+
+    def create(self, validated_data):
+        uploaded_images = validated_data.pop("uploaded_images", [])
+        post = ItemPost.objects.create(**validated_data)
+        
+        for image in uploaded_images:
+            ItemImage.objects.create(post=post, image=image)
+        
+        return post
