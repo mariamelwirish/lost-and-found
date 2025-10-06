@@ -85,8 +85,6 @@ INSTALLED_APPS = [
     "api",
     "rest_framework",
     "corsheaders",
-    "cloudinary_storage",
-    "cloudinary",
 ]
 
 MIDDLEWARE = [
@@ -199,20 +197,6 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
-# Cloudinary configuration
-import cloudinary
-import cloudinary.uploader
-import cloudinary.api
-
-cloudinary.config(
-    cloud_name=env("CLOUDINARY_CLOUD_NAME", default=""),
-    api_key=env("CLOUDINARY_API_KEY", default=""),
-    api_secret=env("CLOUDINARY_API_SECRET", default=""),
-)
-
-# Use Cloudinary for media storage in production
-if not DEBUG:
-    DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 CORS_ALLOW_ALL_ORIGINS = True
 

@@ -17,8 +17,25 @@ export default function CreatePost() {
     }
   }, [user, nav]);
   
-  // Determine post type from current route or state
-  const postType = location.state?.type || "lost";
+  // Determine post type from state or referrer
+  const postType = useMemo(() => {
+    // First check if type was passed in state
+    if (location.state?.type) {
+      return location.state.type;
+    }
+    
+    // Fallback: check referrer or current path context
+    const referrer = document.referrer;
+    if (referrer.includes('/found')) {
+      return 'found';
+    }
+    if (referrer.includes('/lost')) {
+      return 'lost';
+    }
+    
+    // Default fallback
+    return 'lost';
+  }, [location.state]);
 
   // form state
   const [title, setTitle] = useState("");
@@ -78,17 +95,21 @@ export default function CreatePost() {
       fd.append("description", desc);
       fd.append("status", postType);
       
+      console.log("Creating post with status:", postType); // Debug log
+      
       // Use uploaded_images to match backend serializer
       files.forEach((f) => fd.append("uploaded_images", f));
 
-      await api.post("/api/posts/", fd, {
+      const response = await api.post("/api/posts/", fd, {
         headers: { "Content-Type": "multipart/form-data" },
       });
+      
+      console.log("Post created:", response.data); // Debug log
       
       // Navigate back to the appropriate page
       nav(postType === "lost" ? "/lost" : "/found");
     } catch (err) {
-      console.error(err);
+      console.error("Create post error:", err);
       alert(err?.response?.data?.detail || "Failed to create post");
     } finally {
       setSubmitting(false);

@@ -18,9 +18,12 @@ export default function PostsList({ kind, mine }) {
     let alive = true;
     (async () => {
       try {
+        console.log(`Fetching posts with kind: ${kind}, mine: ${mine}`); // Debug log
         const res = await api.get("/api/posts/", {
           params: { kind, mine: mine ? 1 : 0 },
         });
+
+        console.log("API response:", res.data); // Debug log
 
         // ✅ normalize to an array no matter the payload shape
         const data = res?.data;
