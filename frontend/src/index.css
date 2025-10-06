@@ -33,9 +33,7 @@ a {
   color: inherit;
   text-decoration: none;
 }
-a:hover {
-  text-decoration: underline;
-}
+
 
 /* ================= NAVBAR ================= */
 .topbar {
@@ -460,5 +458,260 @@ a:hover {
     background: #b79fc8;
     border-top: 1px solid #eee;
     z-index: 50;
+  }}
+  /* create post layout */
+.create-shell { padding: 24px 0; }
+.create-toolbar {
+  display: flex; align-items: center; gap: 12px;
+  background: var(--brand, #C4B0CD); color: #fff;
+  padding: 12px 16px; border-radius: 12px 12px 0 0; max-width: 1100px; margin: 0 auto;
+}
+.create-toolbar h2 { margin: 0; font-size: 18px; }
+.icon-btn { background: transparent; border: 0; font-size: 20px; line-height: 1; cursor: pointer; color: inherit; }
+.grow { flex: 1 1 auto; }
+
+.create-grid {
+  max-width: 1100px; margin: 0 auto; background: #fff;
+  border: 1px solid var(--muted, #E5E5E5); border-top: 0; border-radius: 0 0 12px 12px;
+  display: grid; grid-template-columns: 1.2fr 1fr; gap: 20px; padding: 20px;
+}
+
+.upload-pane {
+  position: relative; border: 1px dashed rgba(196,176,205,.9);
+  background: #FFF9F6; border-radius: 12px; min-height: 420px;
+  display: grid; place-items: center; overflow: hidden;
+}
+.empty-upload { text-align: center; cursor: pointer; }
+.empty-upload .icon { font-size: 28px; margin-bottom: 6px; opacity: .7; }
+.upload-preview { width: 100%; height: 100%; object-fit: cover; }
+
+.round { position: absolute; top: 50%; transform: translateY(-50%); border-radius: 999px; border: 1px solid rgba(196,176,205,.9); background: #fff; width: 36px; height: 36px; }
+.round.left { left: 8px; }
+.round.right { right: 8px; }
+.round.ghost { opacity: .9; }
+
+.thumbs { position: absolute; right: 10px; bottom: 10px; display: flex; gap: 6px; }
+.thumb { width: 38px; height: 38px; padding: 0; border: 2px solid transparent; border-radius: 8px; overflow: hidden; background: #fff; }
+.thumb.active { border-color: var(--brand, #C4B0CD); }
+.thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+.form-pane { display: grid; gap: 14px; align-content: start; }
+.field { display: grid; gap: 6px; }
+.field > span { font-size: 12px; opacity: .8; }
+.field input, .field select, .field textarea {
+  width: 100%; padding: 10px 12px; border-radius: 8px;
+  border: 1px solid var(--muted, #E5E5E5); background: #faf7f4;
+}
+.charcount { text-align: right; font-size: 12px; opacity: .6; margin-top: 4px; }
+
+.actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 8px; }
+.btn { border: 0; padding: 10px 16px; border-radius: 999px; background: #e6e0ea; cursor: pointer; }
+.btn.primary { background: var(--brand, #C4B0CD); color: #fff; }
+.btn.primary:hover { filter: brightness(.95); }
+
+/* subnav action button */
+/* Sub-nav container */
+
+/* === Subnav tabs look like equal-size buttons === */
+:root { --tab-font: 13px; } /* smaller font for both tabs & label */
+
+.subnav { background: #FFFCF9;  }
+
+.subnav-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+/* Equal width, centered label, purple by default */
+/*.subnav .tab {
+  display: inline-flex;
+  justify-content: center;       
+  align-items: center;
+  width: 120px;                  
+  padding: 8px 12px;
+  font-size: var(--tab-font);    
+  font-weight: 400;
+  background: #C0ABC9;          
+  border: 1px solid #C0ABC9;
+  border-radius: 5px;
+  color: #fff;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background .12s, border-color .12s, box-shadow .12s;
+}
+.subnav .tab:hover { text-decoration: none; filter: brightness(.97); }
+.subnav .tab.active {
+  background: #9C81A8;           
+  border-color: #9C81A8;
+}*/
+/* ---- Sub-nav tabs: default = light purple, hover = slightly darker, active = dark purple ---- */
+:root {
+  --tab-bg: #C0ABC9;        /* light purple (default) */
+  --tab-bg-hover: #B79FC8;  /* hover */
+  --tab-bg-active: #9C81A8; /* active (dark) */
+}
+
+
+.subnav-inner {
+  max-width: none;
+  margin-left: 30px;
+  padding-left: var(--gutter, 12px);
+  padding-right: 16px;
+}
+
+.tab {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 120px;
+  gap: 6px;
+  padding: 8px 12px;
+  border: 1px solid var(--tab-bg);
+  border-radius: 5px;
+  background: var(--tab-bg);
+  color: #17313E;            /* readable on the light purple */
+  font-weight: 300;
+  font-size: var(--tab-font);
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 150ms ease, border-color 150ms ease, transform 50ms ease;
+}
+
+.tab:hover {
+  background: var(--tab-bg-hover);
+  border-color: var(--tab-bg-hover);
+}
+
+.tab:active {
+  transform: translateY(1px);
+}
+
+.tab.active {
+  background: var(--tab-bg-active);
+  border-color: var(--tab-bg-active);
+  color: #fff;               /* white text on dark purple */
+}
+
+/* === Floating "Create Post" button (bottom-right) === */
+.fab-wrap {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  z-index: 50;
+}
+
+.fab {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: #17313E;           /* circle color */
+  display: grid;
+  place-items: center;
+  box-shadow: 0 8px 24px rgba(0,0,0,.18);
+  border: 0;
+}
+.fab:hover { filter: brightness(1.05); }
+
+.fab-plus {
+  font-size: 34px;
+  line-height: 0;
+  color: #F9F3EF;                /* plus sign color */
+  margin-top: -2px;              /* tiny optical nudge */
+}
+
+.fab-label {
+  font-size: var(--tab-font);    /* same size as tabs */
+  color: var(--ink);
+  text-align: center;
+}
+.topbar { position: sticky; z-index: 20; }
+
+/* Overlay in the middle layer */
+.create-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(23, 49, 62, 0.28); /* #17313E @ 28% */
+  z-index: 40;                         /* OVER the page, UNDER the card */
+  pointer-events: none;                /* change to auto if you want it to block clicks */
+}
+
+/* Card (toolbar + grid) above overlay */
+.create-modal {
+  position: relative;
+  z-index: 50;
+}
+/* Read-only value block (used in ViewPost) */
+.ro {
+  padding: 10px 12px;
+  border: 1px solid var(--muted, #E5E5E5);
+  background: #faf7f4;
+  border-radius: 8px;
+}
+.nav a.active {
+  font-weight: 800;
+  text-decoration: none;
+}
+/* ===== Make Create Post card fit the screen and be responsive ===== */
+
+/* Configure rough heights of bars (tweak if yours differ) */
+:root{
+  --topbar-h: 56px;   /* your purple navbar height */
+  --subnav-h: 48px;   /* the Posts/My Posts bar */
+  --toolbar-h: 56px;  /* the "Create Post" toolbar on the card */
+  --page-pad: 24px;   /* vertical padding around the card */
+}
+
+/* Keep your existing .create-shell/.create-toolbar styles, then add: */
+.create-toolbar {
+  position: sticky;                         /* keeps toolbar visible while card scrolls */
+  top: calc(var(--topbar-h) + var(--subnav-h));
+  z-index: 3;
+}
+
+/* Let the card (create-grid) fit the viewport and scroll internally */
+.create-grid{
+  /* existing styles … */
+  max-height: calc(
+    100vh - var(--topbar-h) - var(--subnav-h) - var(--toolbar-h) - (var(--page-pad) * 2)
+  );
+  overflow: auto;                            /* scroll INSIDE the card, not the page */
+}
+
+/* Give the left image area a reasonable minimum, but not too big */
+.upload-pane{
+  min-height: 380px;
+}
+
+/* ---------- Responsive breakpoints ---------- */
+
+/* Medium screens: reduce card padding a bit */
+@media (max-width: 1200px){
+  .create-grid{ padding: 16px; gap: 16px; }
+}
+
+/* Tablets & small laptops: stack columns, lower min-heights */
+@media (max-width: 1024px){
+  .create-grid{
+    grid-template-columns: 1fr;              /* stack image and form */
+    max-height: calc(
+      100vh - var(--topbar-h) - var(--subnav-h) - var(--toolbar-h) - (var(--page-pad) * 2)
+    );
   }
+  .upload-pane{ min-height: 300px; }
+}
+
+/* Phones: tighter paddings and thumbnails */
+@media (max-width: 640px){
+  :root{ --page-pad: 16px; }
+  .create-grid{ padding: 12px; gap: 12px; }
+  .upload-pane{ min-height: 240px; }
+  .thumb{ width: 32px; height: 32px; }
 }
