@@ -48,7 +48,7 @@ class PendingSignup(models.Model):
     username = models.CharField(max_length=150, unique=True)
     first_name = models.CharField(max_length=150)
     last_name = models.CharField(max_length=150)
-    phone = models.CharField(max_length=20, blank=True, null=True, unique=True)
+    phone = models.CharField(max_length=20, blank=True, null=True)
     password_hash = models.CharField(max_length=255)
 
     created_at = models.DateTimeField(auto_now_add=True)

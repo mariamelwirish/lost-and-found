@@ -90,7 +90,8 @@ export default function Login() {
           type="submit"
           style={{ 
             background: '#9C81A8', 
-            transition: 'all 0.2s ease' 
+            transition: 'all 0.2s ease',
+            textDecoration: 'none'
           }}
           onMouseEnter={(e) => e.target.style.background = '#c4b0cd'}
           onMouseLeave={(e) => e.target.style.background = '#9C81A8'}
