@@ -89,11 +89,14 @@ export default function PostsList({ kind, mine }) {
     }));
   };
 
-  const emptyTitle = kind === "lost" ? "No lost items yet" : "No found items yet";
-  const emptyDesc =
-    kind === "lost"
+  const emptyTitle = mine 
+    ? (kind === "lost" ? "I don't have any lost posts" : "I don't have any found posts")
+    : (kind === "lost" ? "No lost items yet" : "No found items yet");
+  const emptyDesc = mine
+    ? "You haven't posted any items yet. Create your first post to get started!"
+    : (kind === "lost"
       ? "When someone reports a lost item, it will appear here."
-      : "When someone reports a found item, it will appear here.";
+      : "When someone reports a found item, it will appear here.");
 
   if (loading) {
     return (
