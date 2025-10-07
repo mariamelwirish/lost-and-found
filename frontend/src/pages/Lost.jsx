@@ -7,7 +7,7 @@ export default function Lost() {
       <section className="hero">
         <div className="welcome">
           <h1>Lost items</h1>
-          <p>Browse recent reports.</p>
+          <p>Post about items you've lost - others on campus can help you find them!</p>
         </div>
       </section>
 

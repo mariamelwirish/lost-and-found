@@ -7,7 +7,7 @@ export default function Found() {
       <section className="hero">
         <div className="welcome">
           <h1>Found items</h1>
-          <p>Browse recent reports.</p>
+          <p>Browse items found on campus - see if yours is here!</p>
         </div>
       </section>
 

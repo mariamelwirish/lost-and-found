@@ -40,9 +40,12 @@ export default function CreatePost() {
   // form state
   const [title, setTitle] = useState("");
   const [locationField, setLocationField] = useState("");
+  const [customLocation, setCustomLocation] = useState("");
   const [date, setDate] = useState("");
   const [desc, setDesc] = useState("");
   const [files, setFiles] = useState([]);        // File[]
+  const [showEmail, setShowEmail] = useState(false);
+  const [showPhone, setShowPhone] = useState(false);
   const [index, setIndex] = useState(0);         // which image is shown
   const [submitting, setSubmitting] = useState(false);
   const fileInputRef = useRef(null);
@@ -90,12 +93,14 @@ export default function CreatePost() {
     try {
       const fd = new FormData();
       fd.append("title", title);
-      fd.append("location", locationField);
+      fd.append("location", locationField === "Other" ? customLocation : locationField);
       fd.append("date", date);
       fd.append("description", desc);
       fd.append("status", postType);
       
-      console.log("Creating post with status:", postType); // Debug log
+      // Add contact info if user chose to show them
+      if (showEmail) fd.append("contact_email", user.email);
+      if (showPhone) fd.append("contact_phone", user.phone || "");
       
       // Use uploaded_images to match backend serializer
       files.forEach((f) => fd.append("uploaded_images", f));
@@ -103,8 +108,6 @@ export default function CreatePost() {
       const response = await api.post("/api/posts/", fd, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      
-      console.log("Post created:", response.data); // Debug log
       
       // Navigate back to the appropriate page
       nav(postType === "lost" ? "/lost" : "/found");
@@ -265,11 +268,78 @@ export default function CreatePost() {
                 <option value="" disabled>
                   Select
                 </option>
-                <option>Nicely</option>
-                <option>Bliss</option>
+                <option>Ada Dodge Hall</option>
+                <option>Assembly Hall</option>
+                <option>Ayman and Sawsan Asfari Building</option>
+                <option>Bechtel Engineering</option>
+                <option>Biology Building</option>
+                <option>Building 20 Admissions and Financial Aid Building</option>
+                <option>Building 42</option>
+                <option>Campus Administrative Building (CAB)</option>
+                <option>CCC Scientific Research Building</option>
+                <option>Charles Hostler Student Center</option>
+                <option>College Hall</option>
+                <option>Corporation Yard Building</option>
+                <option>Daniel Bliss Hall</option>
+                <option>Dar Al Handasah Architecture and Design Building</option>
+                <option>Diana Tamari Sabbagh Building</option>
+                <option>Elmer and Mamdouha Bobst Chemistry Building</option>
+                <option>Emile Bustani Physics Building Hall</option>
+                <option>Facility Satellite Building 1</option>
+                <option>Facility Satellite Building 2</option>
+                <option>Faculty Apartments II</option>
+                <option>Faculty Apartments III</option>
+                <option>Faculty Apartments IV</option>
+                <option>Faculty of Agriculture and Food Sciences</option>
+                <option>Fisk Hall</option>
+                <option>Irani Oxy Engineering Complex</option>
+                <option>Issam Fares Institute</option>
+                <option>Izzat Jaroudi Old Pharmacy Building</option>
+                <option>Jafet Memorial Library</option>
+                <option>Jesup Hall</option>
+                <option>Jewett Hall (Women's Dorm)</option>
+                <option>Kerr Hall (Men's Dorm)</option>
+                <option>Laundry</option>
+                <option>Laura Bustani Hall (Women's Dorm)</option>
+                <option>Lee Observatory Building</option>
+                <option>Main Gate</option>
+                <option>Marquand House</option>
+                <option>Mary Dodge Hall</option>
+                <option>Munib and Angela Masri Building</option>
+                <option>Murex Hall (Women's Dorm)</option>
+                <option>New Pilot Plant</option>
+                <option>New Women's Dorm</option>
+                <option>Nicely Hall</option>
+                <option>Off Campus Women's Dorms</option>
+                <option>Penrose Hall</option>
+                <option>Post Hall</option>
+                <option>Power Plant & Steam Plant</option>
+                <option>Raymond Ghosn Building</option>
+                <option>Residence 38</option>
+                <option>Residence 39</option>
+                <option>Residence 41</option>
+                <option>Reynolds Hall</option>
+                <option>Science Lecture Hall</option>
+                <option>Suliman S. Olayan School of Business</option>
+                <option>Van Dyck Hall</option>
+                <option>Warehouse</option>
+                <option>West Hall</option>
                 <option>Other</option>
               </select>
             </label>
+
+            {locationField === "Other" && (
+              <label className="field">
+                <span>Custom Location</span>
+                <input 
+                  type="text" 
+                  value={customLocation} 
+                  onChange={(e) => setCustomLocation(e.target.value)} 
+                  placeholder="Enter location..."
+                  required 
+                />
+              </label>
+            )}
 
             <label className="field">
               <span>Date {postType === "lost" ? "Lost" : "Found"}</span>
@@ -287,6 +357,29 @@ export default function CreatePost() {
               />
               <div className="charcount">{desc.length}/500</div>
             </label>
+
+            <div style={{ marginTop: 12, padding: 10, background: "#f8f4ff", borderRadius: 8, border: "1px dashed #c4b0cd" }}>
+              <h4 style={{ margin: "0 0 8px", fontSize: 14, color: "#9C81A8" }}> Contact Information (Auto-filled)</h4>
+              <p style={{ fontSize: 12, color: "#666", margin: "0 0 12px" }}>Choose what contact info to show publicly:</p>
+              
+              <label style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6, cursor: "pointer" }}>
+                <input 
+                  type="checkbox" 
+                  checked={showEmail} 
+                  onChange={(e) => setShowEmail(e.target.checked)}
+                />
+                <span style={{ fontSize: 13 }}> Show email: <strong>{user.email}</strong></span>
+              </label>
+              
+              <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}>
+                <input 
+                  type="checkbox" 
+                  checked={showPhone} 
+                  onChange={(e) => setShowPhone(e.target.checked)}
+                />
+                <span style={{ fontSize: 13 }}> Show phone: <strong>{user.phone || "Not provided"}</strong></span>
+              </label>
+            </div>
 
             <div className="actions">
               <button className="btn" type="button" onClick={() => nav(-1)}>

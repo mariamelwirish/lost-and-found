@@ -85,11 +85,34 @@ export default function Login() {
 
         {error && <div className="error">{error}</div>}
 
-        <button className="btn btn-primary" type="submit">Log in</button>
+        <button 
+          className="btn btn-primary" 
+          type="submit"
+          style={{ 
+            background: '#9C81A8', 
+            transition: 'all 0.2s ease' 
+          }}
+          onMouseEnter={(e) => e.target.style.background = '#c4b0cd'}
+          onMouseLeave={(e) => e.target.style.background = '#9C81A8'}
+        >
+          Log in
+        </button>
 
         <div className="divider">Or</div>
 
-        <Link className="btn btn-primary" to="/signup">Sign up</Link>
+        <Link 
+          className="btn btn-primary" 
+          to="/signup"
+          style={{ 
+            background: '#9C81A8', 
+            transition: 'all 0.2s ease',
+            textDecoration: 'none'
+          }}
+          onMouseEnter={(e) => e.target.style.background = '#c4b0cd'}
+          onMouseLeave={(e) => e.target.style.background = '#9C81A8'}
+        >
+          Sign up
+        </Link>
       </form>
     </div>
   );

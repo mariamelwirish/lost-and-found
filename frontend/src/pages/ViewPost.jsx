@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import api from "../api";
+import { getUser } from "../utils/session";
 
 export default function ViewPost() {
   const nav = useNavigate();
@@ -9,6 +10,7 @@ export default function ViewPost() {
   const [post, setPost] = useState(null);
   const [loading, setLoading] = useState(true);
   const [index, setIndex] = useState(0);
+  const user = getUser();
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -27,6 +29,23 @@ export default function ViewPost() {
     if (id) fetchPost();
   }, [id, nav]);
 
+  const handleDelete = async () => {
+    if (!confirm("Are you sure you want to delete this post?")) return;
+    
+    try {
+      await api.delete(`/api/posts/${id}/`);
+      alert("Post deleted successfully");
+      nav(post.status === "lost" ? "/lost" : "/found");
+    } catch (err) {
+      console.error(err);
+      alert("Failed to delete post");
+    }
+  };
+
+  const handleEdit = () => {
+    nav(`/my-posts/edit/${id}`, { state: { post }, replace: true });
+  };
+
   if (loading) {
     return (
       <div className="create-shell">
@@ -41,34 +60,21 @@ export default function ViewPost() {
   if (!post) return null;
 
   const images = post.images || [];
+  const isOwner = user && post.owner === user.id;
 
   return (
     <div className="create-shell">
-      {/* Overlay UNDER the card, OVER the rest of the app */}
       <div className="create-overlay" />
-
-      {/* Card wrapper ABOVE the overlay */}
       <div className="create-modal">
-        {/* top bar like your mock, with centered title */}
         <div className="create-toolbar">
           <button className="icon-btn" onClick={() => nav(-1)}>&larr;</button>
-
           <div className="grow" />
           <h2>{post.status === "lost" ? "Lost" : "Found"} Item</h2>
           <div className="grow" />
-
-          <button
-            className="icon-btn"
-            onClick={() => nav(-1)}
-            aria-label="Close"
-          >
-            ×
-          </button>
+          <button className="icon-btn" onClick={() => nav(post.status === "lost" ? "/lost" : "/found")} aria-label="Close">×</button>
         </div>
 
-        {/* main two-column layout */}
         <div className="create-grid">
-          {/* LEFT: image display */}
           <section className="upload-pane">
             {images.length ? (
               <>
@@ -119,8 +125,7 @@ export default function ViewPost() {
             )}
           </section>
 
-          {/* RIGHT: post details */}
-          <div className="form-pane">
+          <div className="form-pane view-post-card">
             <div className="field">
               <span>Title</span>
               <div style={{ padding: "8px 0", fontSize: "16px", fontWeight: "500" }}>
@@ -135,25 +140,68 @@ export default function ViewPost() {
 
             <div className="field">
               <span>Date {post.status === "lost" ? "Lost" : "Found"}</span>
-              <div style={{ padding: "8px 0" }}>{post.date}</div>
+              <div style={{ padding: "4px 0", fontWeight: "500" }}>{post.date}</div>
             </div>
 
             <div className="field">
               <span>Posted by</span>
-              <div style={{ padding: "8px 0" }}>{post.owner_name}</div>
+              <div style={{ padding: "4px 0", fontWeight: "500" }}>{post.owner_name}</div>
             </div>
+
+            {(post.contact_email || post.contact_phone) && (
+              <div className="field">
+                <span>Contact Info</span>
+                <div style={{ 
+                  padding: "8px 12px", 
+                  background: "#f8f4ff", 
+                  borderRadius: 6, 
+                  border: "1px solid #e0d4e7",
+                  marginTop: "4px"
+                }}>
+                  {post.contact_email && (
+                    <div style={{ marginBottom: 3, fontSize: 14 }}>
+                      <a href={`mailto:${post.contact_email}`} style={{ color: "#9C81A8", textDecoration: "none", fontWeight: "500" }}>{post.contact_email}</a>
+                    </div>
+                  )}
+                  {post.contact_phone && (
+                    <div style={{ fontSize: 14 }}>
+                      <a href={`tel:${post.contact_phone}`} style={{ color: "#9C81A8", textDecoration: "none" }}>{post.contact_phone}</a>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
 
             <div className="field">
               <span>Description</span>
-              <div style={{ padding: "8px 0", lineHeight: "1.5" }}>
+              <div style={{ 
+                padding: "8px 0", 
+                lineHeight: "1.6",
+                color: "#333",
+                marginTop: "4px",
+                wordWrap: "break-word",
+                whiteSpace: "pre-wrap",
+                maxWidth: "100%",
+                overflow: "hidden"
+              }}>
                 {post.description}
               </div>
             </div>
 
             <div className="actions">
-              <button className="btn" type="button" onClick={() => nav(-1)}>
+              <button className="btn" type="button" onClick={() => nav(post.status === "lost" ? "/lost" : "/found")}>
                 Close
               </button>
+              {isOwner && (
+                <>
+                  <button className="btn" type="button" onClick={handleEdit}>
+                    Edit
+                  </button>
+                  <button className="btn" type="button" onClick={handleDelete} style={{ color: "#dc2626" }}>
+                    Delete
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>

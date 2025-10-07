@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api";
+import { getUser } from "../utils/session";
 
 /**
  * Props:
@@ -13,17 +14,16 @@ export default function PostsList({ kind, mine }) {
   const [items, setItems] = useState([]);   // ✅ start as array
   const [err, setErr] = useState("");
   const [loading, setLoading] = useState(true);
+  const [imageIndexes, setImageIndexes] = useState({});
+  const user = getUser();
 
   useEffect(() => {
     let alive = true;
     (async () => {
       try {
-        console.log(`Fetching posts with kind: ${kind}, mine: ${mine}`); // Debug log
         const res = await api.get("/api/posts/", {
           params: { kind, mine: mine ? 1 : 0 },
         });
-
-        console.log("API response:", res.data); // Debug log
 
         // ✅ normalize to an array no matter the payload shape
         const data = res?.data;
@@ -53,6 +53,41 @@ export default function PostsList({ kind, mine }) {
       alive = false;
     };
   }, [kind, mine]);
+
+  const handleDelete = async (postId, e) => {
+    e.stopPropagation();
+    if (!confirm("Are you sure you want to delete this post?")) return;
+    
+    try {
+      await api.delete(`/api/posts/${postId}/`);
+      setItems(prev => prev.filter(item => item.id !== postId));
+      alert("Post deleted successfully");
+    } catch (err) {
+      console.error(err);
+      alert("Failed to delete post");
+    }
+  };
+
+  const handleEdit = (postId, e) => {
+    e.stopPropagation();
+    navigate(`/my-posts/edit/${postId}`);
+  };
+
+  const nextImage = (postId, imageCount, e) => {
+    e.stopPropagation();
+    setImageIndexes(prev => ({
+      ...prev,
+      [postId]: ((prev[postId] || 0) + 1) % imageCount
+    }));
+  };
+
+  const prevImage = (postId, imageCount, e) => {
+    e.stopPropagation();
+    setImageIndexes(prev => ({
+      ...prev,
+      [postId]: ((prev[postId] || 0) - 1 + imageCount) % imageCount
+    }));
+  };
 
   const emptyTitle = kind === "lost" ? "No lost items yet" : "No found items yet";
   const emptyDesc =
@@ -107,18 +142,81 @@ export default function PostsList({ kind, mine }) {
             }}
           >
             {p.images?.length ? (
-              <img src={p.images[0].image} alt={p.title || "post"} style={{ width: "100%", height: 160, objectFit: "cover" }} />
+              <div style={{ position: "relative" }}>
+                <img 
+                  src={p.images[imageIndexes[p.id] || 0].image} 
+                  alt={p.title || "post"} 
+                  style={{ width: "100%", height: 160, objectFit: "cover" }} 
+                />
+                {p.images.length > 1 && (
+                  <>
+                    <button
+                      onClick={(e) => prevImage(p.id, p.images.length, e)}
+                      style={{
+                        position: "absolute", left: 8, top: "50%", transform: "translateY(-50%)",
+                        background: "rgba(0,0,0,0.5)", color: "white", border: "none",
+                        width: 24, height: 24, borderRadius: "50%", cursor: "pointer",
+                        display: "flex", alignItems: "center", justifyContent: "center"
+                      }}
+                    >
+                      ‹
+                    </button>
+                    <button
+                      onClick={(e) => nextImage(p.id, p.images.length, e)}
+                      style={{
+                        position: "absolute", right: 8, top: "50%", transform: "translateY(-50%)",
+                        background: "rgba(0,0,0,0.5)", color: "white", border: "none",
+                        width: 24, height: 24, borderRadius: "50%", cursor: "pointer",
+                        display: "flex", alignItems: "center", justifyContent: "center"
+                      }}
+                    >
+                      ›
+                    </button>
+                    <div style={{
+                      position: "absolute", bottom: 8, right: 8,
+                      background: "rgba(0,0,0,0.7)", color: "white",
+                      padding: "2px 6px", borderRadius: 10, fontSize: 10
+                    }}>
+                      {(imageIndexes[p.id] || 0) + 1}/{p.images.length}
+                    </div>
+                  </>
+                )}
+              </div>
             ) : (
               <div style={{ height: 160, background: "#f3edf7" }} />
             )}
             <div style={{ padding: 12 }}>
               <h4 style={{ margin: "0 0 6px" }}>{p.title || "Untitled"}</h4>
-              <div style={{ fontSize: 12, opacity: 0.8 }}>{p.location || "—"} • {p.date || "—"}</div>
-              {p.description && (
-                <p style={{ fontSize: 13, marginTop: 10, color: "#334155" }}>
-                  {String(p.description).slice(0, 100)}
-                  {String(p.description).length > 100 ? "…" : ""}
-                </p>
+              <div style={{ fontSize: 12, opacity: 0.8, marginBottom: 4 }}>
+                {p.location || "—"} • {p.date || "—"}
+              </div>
+              <div style={{ fontSize: 12, color: "#666" }}>
+                By {p.owner_name || "Unknown"}
+              </div>
+              {mine && user && (
+                <></>
+              )}
+              {mine && user && p.owner === user.id && (
+                <div style={{ marginTop: 8, display: "flex", gap: 8 }}>
+                  <button
+                    onClick={(e) => handleEdit(p.id, e)}
+                    style={{
+                      padding: "4px 8px", fontSize: 12, background: "#f3f4f6",
+                      border: "1px solid #d1d5db", borderRadius: 4, cursor: "pointer"
+                    }}
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={(e) => handleDelete(p.id, e)}
+                    style={{
+                      padding: "4px 8px", fontSize: 12, background: "#fef2f2",
+                      border: "1px solid #fecaca", borderRadius: 4, cursor: "pointer", color: "#dc2626"
+                    }}
+                  >
+                    Delete
+                  </button>
+                </div>
               )}
             </div>
           </article>

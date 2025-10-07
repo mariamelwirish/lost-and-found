@@ -13,6 +13,7 @@ import Found from "./pages/Found.jsx";
 import MyFound from "./pages/MyFound.jsx";
 import ViewPost from "./pages/ViewPost.jsx";
 import CreatePost from "./pages/CreatePost.jsx";
+import EditPost from "./pages/EditPost.jsx";
 import Login from "./pages/Login.jsx";
 import Signup from "./pages/Signup.jsx";
 import ForgotPassword from "./pages/ForgotPassword.jsx";
@@ -43,6 +44,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
           <Route path="/found/mine" element={<MyFound />} />
           <Route path="/posts/:id" element={<ViewPost />} />
           <Route path="/my-posts/create" element={<CreatePost />} />
+          <Route path="/my-posts/edit/:id" element={<EditPost />} />
         </Route>
 
         {/* Redirect all other routes to landing */}

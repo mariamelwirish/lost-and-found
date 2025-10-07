@@ -70,7 +70,17 @@ export default function ForgotPassword() {
           </div>
         )}
 
-        <button className="btn btn-primary" type="submit" disabled={loading}>
+        <button 
+          className="btn btn-primary" 
+          type="submit" 
+          disabled={loading}
+          style={{ 
+            background: '#9C81A8', 
+            transition: 'all 0.2s ease' 
+          }}
+          onMouseEnter={(e) => !loading && (e.target.style.background = '#c4b0cd')}
+          onMouseLeave={(e) => !loading && (e.target.style.background = '#9C81A8')}
+        >
           {loading ? "Sending..." : "Send reset link"}
         </button>
 
