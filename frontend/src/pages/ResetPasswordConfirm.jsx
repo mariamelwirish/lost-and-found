@@ -84,7 +84,19 @@ export default function ResetPasswordConfirm() {
             Password updated successfully!
           </div>
           
-          <Link className="btn btn-primary" to="/login">Go to Login</Link>
+          <Link 
+            className="btn btn-primary" 
+            to="/login"
+            style={{ 
+              background: '#9C81A8', 
+              transition: 'all 0.2s ease',
+              textDecoration: 'none'
+            }}
+            onMouseEnter={(e) => e.target.style.background = '#c4b0cd'}
+            onMouseLeave={(e) => e.target.style.background = '#9C81A8'}
+          >
+            Go to Login
+          </Link>
         </div>
       </div>
     );
@@ -147,7 +159,17 @@ export default function ResetPasswordConfirm() {
           </div>
         )}
 
-        <button className="btn btn-primary" type="submit" disabled={loading}>
+        <button 
+          className="btn btn-primary" 
+          type="submit" 
+          disabled={loading}
+          style={{ 
+            background: '#9C81A8', 
+            transition: 'all 0.2s ease' 
+          }}
+          onMouseEnter={(e) => !loading && (e.target.style.background = '#c4b0cd')}
+          onMouseLeave={(e) => !loading && (e.target.style.background = '#9C81A8')}
+        >
           {loading ? "Resetting..." : "Reset Password"}
         </button>
 

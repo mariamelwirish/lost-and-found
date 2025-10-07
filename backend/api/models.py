@@ -15,6 +15,8 @@ class ItemPost(models.Model):
     location = models.CharField(max_length=200, blank=True)
     date = models.DateField()
     owner = models.ForeignKey(User, on_delete=CASCADE, related_name="item_posts")
+    contact_email = models.EmailField(blank=True, null=True)
+    contact_phone = models.CharField(max_length=20, blank=True, null=True)
     creationDate = models.DateTimeField(auto_now_add=True, db_index=True)
     updateDate = models.DateTimeField(auto_now=True)
 

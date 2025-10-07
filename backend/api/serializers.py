@@ -33,12 +33,16 @@ class ItemPostSerializer(serializers.ModelSerializer):
     uploaded_images = serializers.ListField(
         child=serializers.ImageField(), write_only=True, required=False
     )
+    delete_images = serializers.ListField(
+        child=serializers.IntegerField(), write_only=True, required=False
+    )
     owner_name = serializers.CharField(source="owner.get_full_name", read_only=True)
 
     class Meta:
         model = ItemPost
         fields = ["id", "title", "description", "status", "location", "date", 
-                 "owner", "owner_name", "creationDate", "updateDate", "images", "uploaded_images"]
+                 "owner", "owner_name", "creationDate", "updateDate", "images", "uploaded_images", "delete_images",
+                 "contact_email", "contact_phone"]
         read_only_fields = ["owner", "creationDate", "updateDate"]
 
     def create(self, validated_data):
@@ -49,3 +53,22 @@ class ItemPostSerializer(serializers.ModelSerializer):
             ItemImage.objects.create(post=post, image=image)
         
         return post
+
+    def update(self, instance, validated_data):
+        uploaded_images = validated_data.pop("uploaded_images", [])
+        delete_images = validated_data.pop("delete_images", [])
+        
+        # Update the post fields
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+        
+        # Delete specified images
+        if delete_images:
+            ItemImage.objects.filter(post=instance, id__in=delete_images).delete()
+        
+        # Add new images
+        for image in uploaded_images:
+            ItemImage.objects.create(post=instance, image=image)
+        
+        return instance

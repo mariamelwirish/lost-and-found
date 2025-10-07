@@ -140,10 +140,35 @@ export default function Signup() {
 
           {error && <div className="error" role="alert" aria-live="polite">{error}</div>}
 
-          <button className="btn btn-primary w-full" type="submit">Verify & Create Account</button>
+          <button 
+            className="btn btn-primary w-full" 
+            type="submit"
+            style={{ 
+              background: '#9C81A8', 
+              transition: 'all 0.2s ease' 
+            }}
+            onMouseEnter={(e) => e.target.style.background = '#c4b0cd'}
+            onMouseLeave={(e) => e.target.style.background = '#9C81A8'}
+          >
+            Verify & Create Account
+          </button>
 
           <div style={{ marginTop: 12, fontSize: 14, textAlign: "center" }}>
-            <button type="button" onClick={() => setStep(1)} style={{ background: "none", border: "none", color: "blue", cursor: "pointer" }}>
+            <button 
+              type="button" 
+              onClick={() => setStep(1)} 
+              style={{ 
+                background: "#9C81A8", 
+                border: "none", 
+                color: "white", 
+                cursor: "pointer",
+                padding: "8px 16px",
+                borderRadius: "4px",
+                transition: "all 0.2s ease"
+              }}
+              onMouseEnter={(e) => e.target.style.background = '#c4b0cd'}
+              onMouseLeave={(e) => e.target.style.background = '#9C81A8'}
+            >
               Back to form
             </button>
           </div>
@@ -230,7 +255,18 @@ export default function Signup() {
 
         {error && <div className="error" role="alert" aria-live="polite">{error}</div>}
 
-        <button className="btn btn-primary w-full" type="submit">Send Verification Code</button>
+        <button 
+          className="btn btn-primary w-full" 
+          type="submit"
+          style={{ 
+            background: '#9C81A8', 
+            transition: 'all 0.2s ease' 
+          }}
+          onMouseEnter={(e) => e.target.style.background = '#c4b0cd'}
+          onMouseLeave={(e) => e.target.style.background = '#9C81A8'}
+        >
+          Send Verification Code
+        </button>
 
         <div style={{ marginTop: 12, fontSize: 14, textAlign: "center" }}>
           Already have an account? <Link to="/login">Log in</Link>
