@@ -27,7 +27,8 @@ body {
   font-family:
     'Poppins', system-ui, sans-serif;
 
-
+
+
   background: var(--canvas);
   color: var(--ink);
 }
@@ -184,19 +185,33 @@ a {
 .btn {
   display: block;
   width: 100%;
-  border: 0;
-  border-radius: 999px;
-  padding: 12px 14px;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  padding: 14px 28px;
   text-align: center;
   cursor: pointer;
-  font-weight: 600;
+  font-weight: 500;
+  font-size: 16px;
+  transition: all 0.2s ease;
+  margin: 12px 0;
+  background: var(--brand);
+  color: white;
+  text-decoration: none;
+  box-sizing: border-box;
+}
+
+.btn:hover {
+  background: white;
+  color: var(--brand);
+  border-color: var(--brand);
+  transform: translateY(-2px);
 }
 .btn-primary {
   background: var(--brand);
   color: #fff;
 }
 .btn-primary:hover {
-  background: var(--brand-dark);
+  background: white; color: var(--brand); border-color: var(--brand); transform: translateY(-2px);
 }
 .btn-ghost {
   background: #efe8f4;
@@ -848,38 +863,81 @@ button:hover {
   box-shadow: 0 12px 30px rgba(196, 176, 205, 0.4);
 }
 /* Override login/signup button colors - FORCE OVERRIDE */
+/* Posts and My Posts buttons - active purple, inactive white */
+.subnav .tab {
+  background: white !important;
+  color: var(--brand) !important;
+  border-color: var(--brand) !important;
+  font-weight: 600 !important;
+  font-size:15px;
+}
+
+.subnav .tab.active {
+  background: var(--brand) !important;
+  color: white !important;
+  border-color: var(--brand) !important;
+}
+
+.subnav .tab:hover {
+  background: white !important;
+  color: var(--brand) !important;
+  border-color: var(--brand) !important;
+  transform: translateY(-2px) !important;
+}
+
+.subnav .tab.active:hover {
+  background: var(--brand) !important;
+  color: white !important;
+  transform: translateY(-2px) !important;
+}
+
+/* Extra specific for login/signup pages */
+/* Copy EXACT home-btn and lost-btn rules for form buttons with !important */
+form .btn-primary,
+form button.btn-primary,
+form a.btn-primary,
+form .btn,
+form button,
+form a.btn,
+button[type="submit"],
+input[type="submit"],
 .btn-primary,
 .btn.btn-primary,
 button.btn-primary,
 a.btn.btn-primary {
-  background: var(--brand-darker) !important;
+  padding: 14px 28px !important;
+  border-radius: 8px !important;
+  text-decoration: none !important;
+  font-weight: 600 !important;
+  font-size: 16px !important;
   transition: all 0.2s ease !important;
+  border: 2px solid transparent !important;
+  background: var(--brand) !important;
+  color: white !important;
+  display: block !important;
+  width: 100% !important;
+  text-align: center !important;
+  box-sizing: border-box !important;
+  margin: 12px 0 !important;
+  cursor: pointer !important;
 }
+
+form .btn-primary:hover,
+form button.btn-primary:hover,
+form a.btn-primary:hover,
+form .btn:hover,
+form button:hover,
+form a.btn:hover,
+button[type="submit"]:hover,
+input[type="submit"]:hover,
 .btn-primary:hover,
 .btn.btn-primary:hover,
 button.btn-primary:hover,
 a.btn.btn-primary:hover {
-  background: var(--brand) !important;
-  transform: translateY(-1px) !important;
-}
-
-/* Extra specific for login/signup pages */
-/* Ensure login and signup buttons are same size */
-form .btn-primary,
-form button.btn-primary,
-form a.btn-primary {
-  background: var(--brand-darker) !important;
-  display: block;
-  width: 100%;
-  padding: 12px 16px;
-  text-align: center;
-  box-sizing: border-box;
-  font-size: 16px;
-}
-form .btn-primary:hover,
-form button.btn-primary:hover,
-form a.btn-primary:hover {
-  background: var(--brand) !important;
+  background: white !important;
+  color: var(--brand) !important;
+  border-color: var(--brand) !important;
+  transform: translateY(-2px) !important;
 }
 /* ViewPost card improvements */
 .view-post-card {
