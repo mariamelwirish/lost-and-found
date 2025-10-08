@@ -204,7 +204,7 @@ STORAGES = {
 }
 
 if USE_BLOB:
-    STORAGES["default"] = {"BACKEND": "backend.storage.VercelBlobStorage"}  # adjust path if needed
+    STORAGES["default"] = {"BACKEND": "storage.VercelBlobStorage"}
     BLOB_PUBLIC_BASE = os.getenv("BLOB_PUBLIC_BASE", "").rstrip("/")
     if not BLOB_PUBLIC_BASE:
         raise RuntimeError("BLOB_PUBLIC_BASE must be set when USE_BLOB=1")
