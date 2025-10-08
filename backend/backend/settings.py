@@ -199,10 +199,24 @@ MEDIA_ROOT = BASE_DIR / "media"
 # Conditional storage setup
 if DEBUG:
     # Local development - use existing MEDIA settings above
-    DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
+    STORAGES = {
+        "default": {
+            "BACKEND": "django.core.files.storage.FileSystemStorage",
+        },
+        "staticfiles": {
+            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        },
+    }
 else:
     # Production with Vercel Blob
-    DEFAULT_FILE_STORAGE = 'storage.VercelBlobStorage'
+    STORAGES = {
+        "default": {
+            "BACKEND": "storage.VercelBlobStorage",
+        },
+        "staticfiles": {
+            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        },
+    }
     MEDIA_URL = "https://blob.vercel-storage.com/"
 
 CORS_ALLOW_ALL_ORIGINS = True
