@@ -197,27 +197,22 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 # Conditional storage setup
-if DEBUG:
-    # Local development - use existing MEDIA settings above
-    STORAGES = {
-        "default": {
-            "BACKEND": "django.core.files.storage.FileSystemStorage",
-        },
-        "staticfiles": {
-            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
-        },
-    }
+USE_BLOB = os.getenv("USE_BLOB", "0") == "1"
+
+STORAGES = {
+    "staticfiles": {"BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"},
+}
+
+if USE_BLOB:
+    STORAGES["default"] = {"BACKEND": "backend.storage.VercelBlobStorage"}  # adjust path if needed
+    BLOB_PUBLIC_BASE = os.getenv("BLOB_PUBLIC_BASE", "").rstrip("/")
+    if not BLOB_PUBLIC_BASE:
+        raise RuntimeError("BLOB_PUBLIC_BASE must be set when USE_BLOB=1")
+    MEDIA_URL = BLOB_PUBLIC_BASE + "/"
 else:
-    # Production with Vercel Blob
-    STORAGES = {
-        "default": {
-            "BACKEND": "storage.VercelBlobStorage",
-        },
-        "staticfiles": {
-            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
-        },
-    }
-    MEDIA_URL = "https://blob.vercel-storage.com/"
+    STORAGES["default"] = {"BACKEND": "django.core.files.storage.FileSystemStorage"}
+    MEDIA_URL = "/media/"
+    MEDIA_ROOT = BASE_DIR / "media"
 
 CORS_ALLOW_ALL_ORIGINS = True
 
