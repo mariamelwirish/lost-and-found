@@ -1,63 +1,69 @@
+# backend/storage.py
 import os
 import uuid
 import requests
 from django.core.files.storage import Storage
-from django.core.files.base import ContentFile
 
 class VercelBlobStorage(Storage):
+    """
+    Minimal Django storage backend for Vercel Blob.
+    - Writes with PUT to https://blob.vercel-storage.com/<key> (Bearer token)
+    - Public reads via BLOB_PUBLIC_BASE (e.g., https://<bucket>.public.blob.vercel-storage.com)
+    """
+
     def __init__(self):
         self.token = os.getenv("BLOB_READ_WRITE_TOKEN")
-        self.public_base = os.getenv("BLOB_PUBLIC_BASE", "").rstrip("/")
+        self.public_base = (os.getenv("BLOB_PUBLIC_BASE") or "").rstrip("/")
         if not self.token:
             raise ValueError("BLOB_READ_WRITE_TOKEN is required")
         if not self.public_base:
             raise ValueError("BLOB_PUBLIC_BASE is required")
 
+    def _generate_key(self, name):
+        # Preserve extension if possible
+        ext = ""
+        base = (getattr(name, "name", None) or name or "").strip()
+        if "." in base:
+            ext = "." + base.split(".")[-1].lower()
+        return f"item_images/{uuid.uuid4().hex}{ext}"
+
     def _save(self, name, content):
-        # Generate unique filename
-        ext = os.path.splitext(name)[1] or ".bin"
-        unique_name = f"{uuid.uuid4().hex}{ext}"
-        
-        # Read content
-        if hasattr(content, 'seek'):
-            content.seek(0)
-        data = content.read()
-        
-        # Upload using PUT method (simpler than multipart)
-        url = f"https://blob.vercel-storage.com/{unique_name}"
-        headers = {
-            "Authorization": f"Bearer {self.token}",
-            "Content-Type": getattr(content, 'content_type', 'application/octet-stream')
-        }
-        
-        response = requests.put(url, data=data, headers=headers, timeout=30)
-        
-        if response.status_code in (200, 201):
-            return unique_name
-        
-        raise Exception(f"Vercel Blob upload failed: {response.status_code} - {response.text}")
+        """
+        Upload to Vercel Blob using a unique key.
+        Returns the key (not a full URL) so Django can build .url via self.url()
+        """
+        key = self._generate_key(getattr(content, "name", name))
+        data = content.read() if hasattr(content, "read") else content
+
+        headers = {"Authorization": f"Bearer {self.token}"}
+        # Content-Type header is optional; Vercel infers but you can add it if you like:
+        # headers["Content-Type"] = getattr(getattr(content, "file", None), "content_type", "application/octet-stream")
+
+        resp = requests.put(f"https://blob.vercel-storage.com/{key}", headers=headers, data=data, timeout=60)
+        resp.raise_for_status()
+        return key  # IMPORTANT: return ONLY the key
 
     def url(self, name):
-        return f"{self.public_base}/{name.lstrip('/')}"
+        # Build a public, browser-loadable URL
+        name = (name or "").lstrip("/")
+        return f"{self.public_base}/{name}"
 
-    def exists(self, name):
-        try:
-            response = requests.head(f"{self.public_base}/{name.lstrip('/')}", timeout=10)
-            return response.status_code == 200
-        except:
-            return False
+    # The methods below are optional but nice to have
+    def exists(self, name):  # You can optimistically return False so Django always saves
+        return False
 
     def delete(self, name):
         try:
-            url = f"https://blob.vercel-storage.com/{name.lstrip('/')}"
-            headers = {"Authorization": f"Bearer {self.token}"}
-            requests.delete(url, headers=headers, timeout=15)
-        except:
-            pass  # Best effort
+            name = (name or "").lstrip("/")
+            requests.delete(f"https://blob.vercel-storage.com/{name}",
+                            headers={"Authorization": f"Bearer {self.token}"},
+                            timeout=15)
+        except Exception:
+            pass  # best effort
 
     def size(self, name):
         try:
-            response = requests.head(f"{self.public_base}/{name.lstrip('/')}", timeout=10)
-            return int(response.headers.get('content-length', 0))
-        except:
+            head = requests.head(self.url(name), timeout=10)
+            return int(head.headers.get("content-length", 0))
+        except Exception:
             return 0
