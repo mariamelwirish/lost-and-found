@@ -50,5 +50,11 @@ class ItemPostViewSet(viewsets.ModelViewSet):
         return {'request': self.request}
     
     def perform_create(self, serializer):
-        print(f"Creating post with data: {serializer.validated_data}")  # Debug log
-        serializer.save(owner=self.request.user)
+            print(f"Creating post with data: {serializer.validated_data}")  # Debug log
+            try:
+                serializer.save(owner=self.request.user)
+            except Exception as e:
+                import traceback
+                print("Error during post creation:", e)
+                traceback.print_exc()
+                raise
