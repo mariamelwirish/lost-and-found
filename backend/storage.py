@@ -21,11 +21,39 @@ class VercelBlobStorage(Storage):
     def _save(self, name, content):
         key = self._generate_key(getattr(content, "name", name))
         data = content.read() if hasattr(content, "read") else content
-        headers = {"Authorization": f"Bearer {self.token}"}
-        resp = requests.put(f"https://blob.vercel-storage.com/{key}",
-                            headers=headers, data=data, timeout=60)
-        resp.raise_for_status()          # <- 200/201, no JSON expected
-        return key                       # <-- return ONLY the key
+        # Ensure the stored path matches our key by disabling the random suffix.
+        headers = {
+            "Authorization": f"Bearer {self.token}",
+            "x-vercel-blob-add-random-suffix": "false",
+        }
+        resp = requests.put(
+            f"https://blob.vercel-storage.com/{key}",
+            headers=headers,
+            data=data,
+            timeout=60,
+        )
+        resp.raise_for_status()
+
+        # Some deployments may still return the final Blob location in headers.
+        # If present and it differs (e.g., service added a suffix), use that path.
+        loc = resp.headers.get("Location") or resp.headers.get("location")
+        if loc:
+            # Expected forms:
+            #  - https://abcedef.public.blob.vercel-storage.com/<pathname>
+            #  - https://blob.vercel-storage.com/<pathname>
+            try:
+                from urllib.parse import urlparse
+
+                parsed = urlparse(loc)
+                if parsed.path and parsed.path != "/":
+                    # Drop leading slash for Django's storage name
+                    pathname = parsed.path.lstrip("/")
+                    if pathname and pathname != key:
+                        return pathname
+            except Exception:
+                pass
+
+        return key
 
     def url(self, name):
         name = (name or "").lstrip("/")
