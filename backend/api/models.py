@@ -28,7 +28,7 @@ class ItemPost(models.Model):
 
 class ItemImage(models.Model):
     post = models.ForeignKey(ItemPost, on_delete=CASCADE, related_name="images")
-    image = models.ImageField(upload_to="item_images/")
+    image = models.ImageField(upload_to="item_images/", max_length=500)
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
