@@ -26,6 +26,10 @@ class VercelBlobStorage(Storage):
             "Authorization": f"Bearer {self.token}",
             "x-vercel-blob-add-random-suffix": "false",
         }
+        # Try to preserve content type for better compatibility/caching
+        ctype = getattr(content, "content_type", None)
+        if ctype:
+            headers["Content-Type"] = ctype
         resp = requests.put(
             f"https://blob.vercel-storage.com/{key}",
             headers=headers,
@@ -36,7 +40,7 @@ class VercelBlobStorage(Storage):
 
         # Some deployments may still return the final Blob location in headers.
         # If present and it differs (e.g., service added a suffix), use that path.
-        loc = resp.headers.get("Location") or resp.headers.get("location")
+        loc = resp.headers.get("Location") or resp.headers.get("location") or resp.headers.get("x-vercel-blob-url")
         if loc:
             # Expected forms:
             #  - https://abcedef.public.blob.vercel-storage.com/<pathname>
@@ -52,6 +56,22 @@ class VercelBlobStorage(Storage):
                         return pathname
             except Exception:
                 pass
+
+        # Some responses may return JSON with a final URL or pathname
+        try:
+            js = resp.json()
+            # Prefer explicit pathname if provided
+            pathname = js.get("pathname") if isinstance(js, dict) else None
+            if pathname:
+                return pathname.lstrip("/")
+            url = js.get("url") if isinstance(js, dict) else None
+            if url:
+                from urllib.parse import urlparse
+                parsed = urlparse(url)
+                if parsed.path and parsed.path != "/":
+                    return parsed.path.lstrip("/")
+        except Exception:
+            pass
 
         return key
 
