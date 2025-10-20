@@ -2,6 +2,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import api from "../api"; // your axios client (uses VITE_API_URL)
+import { LOCATIONS } from "../data/locations";
 import { getUser } from "../utils/session";
 
 export default function CreatePost() {
@@ -268,63 +269,9 @@ export default function CreatePost() {
                 <option value="" disabled>
                   Select
                 </option>
-                <option>Ada Dodge Hall</option>
-                <option>Assembly Hall</option>
-                <option>Ayman and Sawsan Asfari Building</option>
-                <option>Bechtel Engineering</option>
-                <option>Biology Building</option>
-                <option>Building 20 Admissions and Financial Aid Building</option>
-                <option>Building 42</option>
-                <option>Campus Administrative Building (CAB)</option>
-                <option>CCC Scientific Research Building</option>
-                <option>Charles Hostler Student Center</option>
-                <option>College Hall</option>
-                <option>Corporation Yard Building</option>
-                <option>Daniel Bliss Hall</option>
-                <option>Dar Al Handasah Architecture and Design Building</option>
-                <option>Diana Tamari Sabbagh Building</option>
-                <option>Elmer and Mamdouha Bobst Chemistry Building</option>
-                <option>Emile Bustani Physics Building Hall</option>
-                <option>Facility Satellite Building 1</option>
-                <option>Facility Satellite Building 2</option>
-                <option>Faculty Apartments II</option>
-                <option>Faculty Apartments III</option>
-                <option>Faculty Apartments IV</option>
-                <option>Faculty of Agriculture and Food Sciences</option>
-                <option>Fisk Hall</option>
-                <option>Irani Oxy Engineering Complex</option>
-                <option>Issam Fares Institute</option>
-                <option>Izzat Jaroudi Old Pharmacy Building</option>
-                <option>Jafet Memorial Library</option>
-                <option>Jesup Hall</option>
-                <option>Jewett Hall (Women's Dorm)</option>
-                <option>Kerr Hall (Men's Dorm)</option>
-                <option>Laundry</option>
-                <option>Laura Bustani Hall (Women's Dorm)</option>
-                <option>Lee Observatory Building</option>
-                <option>Main Gate</option>
-                <option>Marquand House</option>
-                <option>Mary Dodge Hall</option>
-                <option>Munib and Angela Masri Building</option>
-                <option>Murex Hall (Women's Dorm)</option>
-                <option>New Pilot Plant</option>
-                <option>New Women's Dorm</option>
-                <option>Nicely Hall</option>
-                <option>Off Campus Women's Dorms</option>
-                <option>Penrose Hall</option>
-                <option>Post Hall</option>
-                <option>Power Plant & Steam Plant</option>
-                <option>Raymond Ghosn Building</option>
-                <option>Residence 38</option>
-                <option>Residence 39</option>
-                <option>Residence 41</option>
-                <option>Reynolds Hall</option>
-                <option>Science Lecture Hall</option>
-                <option>Suliman S. Olayan School of Business</option>
-                <option>Van Dyck Hall</option>
-                <option>Warehouse</option>
-                <option>West Hall</option>
-                <option>Other</option>
+                {LOCATIONS.map((loc) => (
+                  <option key={loc} value={loc}>{loc}</option>
+                ))}
               </select>
             </label>
 

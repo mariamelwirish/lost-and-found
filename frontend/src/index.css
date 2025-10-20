@@ -335,8 +335,9 @@ a {
 /* ===== Home hero ===== */
 .hero {
   max-width: 760px;
-  margin: 30px auto;
-  padding: 0 16px 15px;
+  /* slightly tighter than before so the search bar sits closer */
+  margin: 8px auto;
+  padding: 0 16px 6px;
   text-align: center;
 }
 .hero .title {
@@ -373,7 +374,8 @@ a {
 
 .welcome {
   text-align: center;
-  margin: 12px 0 8px;
+  /* tighten the welcome block spacing slightly */
+  margin: 6px 0 4px;
   font-weight: 600;
   color: var(--ink);
   opacity: 0.85;

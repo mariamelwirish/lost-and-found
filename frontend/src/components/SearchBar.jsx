@@ -1,45 +1,152 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
+import { LOCATIONS } from "../data/locations";
 
-export default function SearchBar({ defaultKind = "", showKind = true, onChange }) {
+export default function SearchBar({ defaultKind = "", showKind = true, onChange, debounceMs = 300 }) {
   const [q, setQ] = useState("");
-  const [kind, setKind] = useState(defaultKind);   // "", "lost", "found"
+  const [kind, setKind] = useState(defaultKind); // "", "lost", "found"
   const [location, setLocation] = useState("");
-  const [dateFrom, setDateFrom] = useState("");
-  const [dateTo, setDateTo] = useState("");
+  const [date, setDate] = useState("");
+
+  const timeoutRef = useRef(null);
+  const firstRun = useRef(true);
+
+  const triggerChange = () => {
+    onChange?.({
+      ...(q ? { q } : {}),
+      ...(showKind ? { kind: kind || undefined } : {}),
+      ...(location ? { location } : {}),
+      ...(date ? { date } : {}),
+    });
+  };
 
   function submit(e) {
-    e.preventDefault();
-    onChange?.({
-      q: q || undefined,
-      // only include kind if we actually show the selector
-      ...(showKind ? { kind: kind || undefined } : {}),
-      location: location || undefined,
-      date_from: dateFrom || undefined,
-      date_to: dateTo || undefined,
-    });
+    if (e?.preventDefault) e.preventDefault();
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+    triggerChange();
   }
 
-  function reset() {
-    setQ(""); setKind(defaultKind); setLocation(""); setDateFrom(""); setDateTo("");
-    onChange?.({});
-  }
+  // debounced live search
+  useEffect(() => {
+    if (firstRun.current) {
+      firstRun.current = false;
+      return;
+    }
+
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    timeoutRef.current = setTimeout(() => {
+      triggerChange();
+      timeoutRef.current = null;
+    }, debounceMs);
+
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
+    };
+  }, [q, kind, location, date, debounceMs, showKind, onChange]);
 
   return (
-    <form onSubmit={submit}
-      style={{ display: "grid", gap: 8, gridTemplateColumns: `1fr ${showKind ? "140px " : ""}1fr 160px 160px auto auto`, alignItems: "center", margin: "12px 0" }}>
-      <input placeholder="Search title…" value={q} onChange={(e)=>setQ(e.target.value)} />
-      {showKind && (
-        <select value={kind} onChange={(e)=>setKind(e.target.value)}>
-          <option value="">All</option>
-          <option value="lost">Lost</option>
-          <option value="found">Found</option>
-        </select>
-      )}
-      <input placeholder="Location…" value={location} onChange={(e)=>setLocation(e.target.value)} />
-      <input type="date" value={dateFrom} onChange={(e)=>setDateFrom(e.target.value)} />
-      <input type="date" value={dateTo} onChange={(e)=>setDateTo(e.target.value)} />
-      <button type="submit">Apply</button>
-      <button type="button" onClick={reset}>Reset</button>
+    <form onSubmit={submit} style={{ margin: "0 0 8px 0" }}>
+      <div style={{ display: "flex", justifyContent: "center" }}>
+        <div style={{ display: "flex", gap: 12, width: "100%", maxWidth: 920, alignItems: "center" }}>
+          <input
+            aria-label="Search title"
+            placeholder="Search title…"
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            style={{
+              flex: 1.6,
+              minWidth: 0,
+              padding: "12px 16px",
+              border: "1px solid rgba(0,0,0,0.08)",
+              borderRadius: 12,
+              fontSize: 15,
+              outline: "none",
+              background: "#ffffff",
+              boxShadow: "0 1px 2px rgba(16,24,40,0.03)",
+            }}
+          />
+
+          <select
+            aria-label="Search by location"
+            value={location}
+            onChange={(e) => setLocation(e.target.value)}
+            style={{
+              flex: 1,
+              minWidth: 0,
+              padding: "12px 16px",
+              border: "1px solid rgba(0,0,0,0.08)",
+              borderRadius: 12,
+              fontSize: 15,
+              outline: "none",
+              background: "#ffffff",
+              boxShadow: "0 1px 2px rgba(16,24,40,0.03)",
+            }}
+          >
+            <option value="">Search by location</option>
+            {LOCATIONS.map((loc) => (
+              <option key={loc} value={loc}>
+                {loc}
+              </option>
+            ))}
+          </select>
+
+          <input
+            aria-label="Filter by date"
+            type="date"
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+            style={{
+              flex: "0 0 150px",
+              /* match vertical padding of the other inputs so heights align */
+              padding: "12px 16px",
+              border: "1px solid rgba(0,0,0,0.08)",
+              borderRadius: 12,
+              fontSize: 15,
+              outline: "none",
+              background: "#ffffff",
+              boxShadow: "0 1px 2px rgba(16,24,40,0.03)",
+            }}
+          />
+
+          <button
+            type="button"
+            onClick={() => {
+              // preserve kind but reset other filters
+              setQ("");
+              setLocation("");
+              setDate("");
+              // cancel any pending debounce and trigger immediate change
+              if (timeoutRef.current) {
+                clearTimeout(timeoutRef.current);
+                timeoutRef.current = null;
+              }
+              onChange?.({ ...(showKind ? { kind: kind || undefined } : {}) });
+            }}
+            style={{
+              flex: "0 0 60px",
+              height: "44px",
+              background: "transparent",
+              border: "1px solid rgba(0,0,0,0.08)",
+              borderRadius: 12,
+              color: "#333",
+              fontSize: 12,
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: 0,
+              alignSelf: "center",
+            }}
+          >
+            Reset
+          </button>
+        </div>
+      </div>
     </form>
   );
 }

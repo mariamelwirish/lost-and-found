@@ -1,7 +1,11 @@
 // frontend/src/pages/Lost.jsx
+
+import { useState } from "react";
+import SearchBar from "../components/SearchBar";
 import PostsList from "../components/PostsList";
 
 export default function Lost() {
+  const [filters, setFilters] = useState({});
   return (
     <>
       <section className="hero">
@@ -11,8 +15,8 @@ export default function Lost() {
         </div>
       </section>
 
-      {/* Everyone's posts for LOST */}
-      <PostsList kind="lost" mine={false} />
+      <SearchBar defaultKind="lost" showKind={false} onChange={setFilters} />
+      <PostsList kind="lost" mine={false} filters={filters} />
     </>
   );
 }

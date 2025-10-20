@@ -1,7 +1,11 @@
 // frontend/src/pages/Found.jsx
+
+import { useState } from "react";
+import SearchBar from "../components/SearchBar";
 import PostsList from "../components/PostsList";
 
 export default function Found() {
+  const [filters, setFilters] = useState({});
   return (
     <>
       <section className="hero">
@@ -11,8 +15,8 @@ export default function Found() {
         </div>
       </section>
 
-      {/* Everyone's posts for FOUND */}
-      <PostsList kind="found" mine={false} />
+      <SearchBar defaultKind="found" showKind={false} onChange={setFilters} />
+      <PostsList kind="found" mine={false} filters={filters} />
     </>
   );
 }
