@@ -9,7 +9,7 @@ import { getUser } from "../utils/session";
  *  - kind: "lost" | "found"
  *  - mine: boolean   // true => only my posts
  */
-export default function PostsList({ kind, mine }) {
+export default function PostsList({ kind, mine, filters = {} }) {
   const navigate = useNavigate();
   const [items, setItems] = useState([]);   // ✅ start as array
   const [err, setErr] = useState("");
@@ -21,9 +21,13 @@ export default function PostsList({ kind, mine }) {
     let alive = true;
     (async () => {
       try {
-        const res = await api.get("/api/posts/", {
-          params: { kind, mine: mine ? 1 : 0 },
-        });
+        const params = {
+          ...(kind ? { kind } : {}),
+          ...(mine ? { mine: 1 } : {}),
+          ...filters,              // ← q, location, date_from, date_to
+        };
+        const res = await api.get("/api/posts/", { params });
+        
 
         // ✅ normalize to an array no matter the payload shape
         const data = res?.data;
@@ -52,7 +56,8 @@ export default function PostsList({ kind, mine }) {
     return () => {
       alive = false;
     };
-  }, [kind, mine]);
+  }, [kind, mine, JSON.stringify(filters)]);
+
 
   const handleDelete = async (postId, e) => {
     e.stopPropagation();
