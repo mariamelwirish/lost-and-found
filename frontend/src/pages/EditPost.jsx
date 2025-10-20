@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
 import api from "../api";
 import { getUser } from "../utils/session";
+import { LOCATIONS } from "../data/locations";
 
 export default function EditPost() {
   const nav = useNavigate();

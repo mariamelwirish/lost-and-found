@@ -43,6 +43,29 @@ class ItemPostViewSet(viewsets.ModelViewSet):
         mine = self.request.query_params.get('mine')
         if mine == '1' and self.request.user.is_authenticated:
             queryset = queryset.filter(owner=self.request.user)
+
+        # Filter by title search (q)
+        q = (self.request.query_params.get('q') or '').strip()
+        if q:
+            queryset = queryset.filter(title__icontains=q)
+
+        # Filter by location (partial match)
+        location = (self.request.query_params.get('location') or '').strip()
+        if location:
+            queryset = queryset.filter(location__icontains=location)
+
+        # Filter by single date (exact match) — supports frontend single-date picker
+        date = self.request.query_params.get('date')
+        if date:
+            queryset = queryset.filter(date=date)
+
+        # Filter by date range: date_from / date_to (inclusive)
+        date_from = self.request.query_params.get('date_from')
+        date_to = self.request.query_params.get('date_to')
+        if date_from:
+            queryset = queryset.filter(date__gte=date_from)
+        if date_to:
+            queryset = queryset.filter(date__lte=date_to)
         
         return queryset
     
