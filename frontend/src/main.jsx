@@ -3,10 +3,12 @@ import ReactDOM from "react-dom/client";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 import AppLayout from "./layouts/AppLayout.jsx";
+import AdminLayout from "./layouts/AdminLayout.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import AuthRedirect from "./components/AuthRedirect.jsx";
+import AdminRoute from "./components/admin/AdminRoute.jsx";
 
-// PAGES
+// Regular pages
 import Lost from "./pages/Lost.jsx";
 import MyLost from "./pages/MyLost.jsx";
 import Found from "./pages/Found.jsx";
@@ -20,7 +22,13 @@ import ForgotPassword from "./pages/ForgotPassword.jsx";
 import ResetPasswordConfirm from "./pages/ResetPasswordConfirm.jsx";
 import Home from "./pages/Home.jsx";
 
+// Admin pages
+import AdminDashboard from "./pages/admin/Dashboard.jsx";
+import UserManagement from "./pages/admin/UserManagement.jsx";
+import PostManagement from "./pages/admin/PostManagement.jsx";
+
 import "./index.css";
+import "./styles/admin.css";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
@@ -34,6 +42,13 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         <Route path="/signup" element={<AuthRedirect><Signup /></AuthRedirect>} />
         <Route path="/forgot" element={<AuthRedirect><ForgotPassword /></AuthRedirect>} />
         <Route path="/reset-password" element={<AuthRedirect><ResetPasswordConfirm /></AuthRedirect>} />
+
+        {/* Admin routes */}
+        <Route element={<ProtectedRoute><AdminRoute><AdminLayout /></AdminRoute></ProtectedRoute>}>
+          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/admin/users" element={<UserManagement />} />
+          <Route path="/admin/posts" element={<PostManagement />} />
+        </Route>
 
         {/* Protected routes */}
         <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>

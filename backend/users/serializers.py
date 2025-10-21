@@ -96,3 +96,33 @@ class EmailTokenObtainPairSerializer(TokenObtainPairSerializer):
             except User.DoesNotExist:
                 pass
         return super().validate(attrs)
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = [
+            'id',
+            'username',
+            'email',
+            'first_name',
+            'last_name',
+            'phone',
+            'is_active',
+            'is_staff',
+            'date_joined',
+            'last_login'
+        ]
+        read_only_fields = ['date_joined', 'last_login']
+        
+    def to_representation(self, instance):
+        """Remove sensitive fields for non-admin users"""
+        rep = super().to_representation(instance)
+        user = self.context.get('request').user if self.context.get('request') else None
+        
+        # If user is not an admin, remove staff-only fields
+        if not user or not user.is_staff:
+            rep.pop('is_staff', None)
+            rep.pop('is_active', None)
+            rep.pop('last_login', None)
+            
+        return rep

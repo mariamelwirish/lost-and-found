@@ -4,11 +4,13 @@ from django.conf import settings
 from django.conf.urls.static import static
 from rest_framework.routers import DefaultRouter
 from api.views import CreateUserView, ItemPostViewSet
+from api.admin_views import AdminViewSet
 from users.views_debug import send_test_email
 from users.views import EmailTokenObtainPairView, TokenRefreshView
 
 router = DefaultRouter()
 router.register(r'posts', ItemPostViewSet, basename='posts')
+router.register(r'admin', AdminViewSet, basename='admin')
 
 from django.urls import path
 from django.http import JsonResponse

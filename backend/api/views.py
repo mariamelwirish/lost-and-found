@@ -9,6 +9,7 @@ from .models import ItemPost
 from .permissions import IsOwnerOrReadOnly
 from .serializers import ItemPostSerializer, UserSerializer
 from rest_framework.permissions import IsAuthenticated, AllowAny
+from django.db.models import F
 
 User = get_user_model()
 
@@ -32,7 +33,7 @@ class ItemPostViewSet(viewsets.ModelViewSet):
        return [p() for p in permission_classes]
     
     def get_queryset(self):
-        queryset = ItemPost.objects.all().order_by("-creationDate")
+        queryset = ItemPost.objects.all()
         
         # Filter by status (kind)
         kind = self.request.query_params.get('kind')
@@ -67,6 +68,18 @@ class ItemPostViewSet(viewsets.ModelViewSet):
         if date_to:
             queryset = queryset.filter(date__lte=date_to)
         
+        # Sorting
+        ordering = (self.request.query_params.get('ordering') or '').strip()
+        allowed = {
+            'date', '-date',
+            'creationDate', '-creationDate',
+            'title', '-title',
+        }
+        if ordering in allowed:
+            queryset = queryset.order_by(ordering)
+        else:
+            queryset = queryset.order_by('-creationDate')
+
         return queryset
     
     def get_serializer_context(self):

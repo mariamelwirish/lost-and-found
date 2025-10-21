@@ -50,42 +50,22 @@ export default function SearchBar({ defaultKind = "", showKind = true, onChange,
   }, [q, kind, location, date, debounceMs, showKind, onChange]);
 
   return (
-    <form onSubmit={submit} style={{ margin: "0 0 8px 0" }}>
-      <div style={{ display: "flex", justifyContent: "center" }}>
-        <div style={{ display: "flex", gap: 12, width: "100%", maxWidth: 920, alignItems: "center" }}>
+    <form onSubmit={submit} className="searchbar">
+      <div className="searchbar-inner">
           <input
+            type="search"
             aria-label="Search title"
             placeholder="Search title…"
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            style={{
-              flex: 1.6,
-              minWidth: 0,
-              padding: "12px 16px",
-              border: "1px solid rgba(0,0,0,0.08)",
-              borderRadius: 12,
-              fontSize: 15,
-              outline: "none",
-              background: "#ffffff",
-              boxShadow: "0 1px 2px rgba(16,24,40,0.03)",
-            }}
+            className="search-control title"
           />
 
           <select
             aria-label="Search by location"
             value={location}
             onChange={(e) => setLocation(e.target.value)}
-            style={{
-              flex: 1,
-              minWidth: 0,
-              padding: "12px 16px",
-              border: "1px solid rgba(0,0,0,0.08)",
-              borderRadius: 12,
-              fontSize: 15,
-              outline: "none",
-              background: "#ffffff",
-              boxShadow: "0 1px 2px rgba(16,24,40,0.03)",
-            }}
+            className="search-control location"
           >
             <option value="">Search by location</option>
             {LOCATIONS.map((loc) => (
@@ -100,17 +80,7 @@ export default function SearchBar({ defaultKind = "", showKind = true, onChange,
             type="date"
             value={date}
             onChange={(e) => setDate(e.target.value)}
-            style={{
-              flex: "0 0 150px",
-              /* match vertical padding of the other inputs so heights align */
-              padding: "12px 16px",
-              border: "1px solid rgba(0,0,0,0.08)",
-              borderRadius: 12,
-              fontSize: 15,
-              outline: "none",
-              background: "#ffffff",
-              boxShadow: "0 1px 2px rgba(16,24,40,0.03)",
-            }}
+            className="search-control date"
           />
 
           <button
@@ -127,25 +97,10 @@ export default function SearchBar({ defaultKind = "", showKind = true, onChange,
               }
               onChange?.({ ...(showKind ? { kind: kind || undefined } : {}) });
             }}
-            style={{
-              flex: "0 0 60px",
-              height: "44px",
-              background: "transparent",
-              border: "1px solid rgba(0,0,0,0.08)",
-              borderRadius: 12,
-              color: "#333",
-              fontSize: 12,
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              padding: 0,
-              alignSelf: "center",
-            }}
+            className="search-reset"
           >
             Reset
           </button>
-        </div>
       </div>
     </form>
   );

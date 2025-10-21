@@ -177,4 +177,5 @@ def get_user_profile(request):
         'first_name': user.first_name,
         'last_name': user.last_name,
         'phone': getattr(user, 'phone', ''),
+        'is_staff': user.is_staff,
     })
