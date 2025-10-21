@@ -58,15 +58,23 @@ export default function Navbar() {
             {/* RIGHT: auth */}
             <div className="nav right" onClick={() => setOpen(false)}>
               {user ? (
-                <a
-                  href="#"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    handleLogout();
-                  }}
-                >
-                  Logout
-                </a>
+                <>
+                  {user.is_staff && (
+                    <>
+                      <Link to="/admin" className="nav-link">Admin</Link>
+                      <span className="sep" />
+                    </>
+                  )}
+                  <a
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleLogout();
+                    }}
+                  >
+                    Logout
+                  </a>
+                </>
               ) : (
                 <Link to="/login">Login</Link>
               )}
