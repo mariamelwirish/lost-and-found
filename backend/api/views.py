@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.contrib.auth import get_user_model
-from rest_framework import generics, viewsets, permissions
+from rest_framework import generics, viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser
@@ -10,6 +10,7 @@ from .permissions import IsOwnerOrReadOnly
 from .serializers import ItemPostSerializer, UserSerializer
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.db.models import F
+from django.utils import timezone
 
 User = get_user_model()
 
@@ -88,3 +89,17 @@ class ItemPostViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         print(f"Creating post with data: {serializer.validated_data}")  # Debug log
         serializer.save(owner=self.request.user)
+
+    @action(detail=True, methods=["post"], permission_classes=[IsAuthenticated])
+    def mark_received(self, request, pk=None):
+        post = self.get_object()
+        if post.owner_id != request.user.id:
+            return Response({"detail": "Only the post owner can mark as received."}, status=status.HTTP_403_FORBIDDEN)
+        if not post.received_from_poster:
+            post.received_from_poster = True
+            post.received_at = timezone.now()
+            post.received_by = request.user
+            post.save(update_fields=["received_from_poster", "received_at", "received_by", "updateDate"])
+        serializer = self.get_serializer(post)
+        return Response(serializer.data)
+

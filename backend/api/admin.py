@@ -30,8 +30,9 @@ class ItemPostAdmin(admin.ModelAdmin):
         "owner",
         "creationDate",
         "updateDate",
+        "received_from_poster",
     )
-    list_filter = ("status", "location", "date", "creationDate")
+    list_filter = ("status", "location", "date", "creationDate", "received_from_poster")
     search_fields = (
         "title",
         "description",
@@ -40,6 +41,7 @@ class ItemPostAdmin(admin.ModelAdmin):
         "owner__email",
         "contact_email",
         "contact_phone",
+        "received_from_poster",
     )
     ordering = ("-creationDate",)
     date_hierarchy = "date"
@@ -57,8 +59,7 @@ class ItemPostAdmin(admin.ModelAdmin):
 
     inlines = [ItemImageInline]
 
-    # Quick actions to flip status
-    actions = ["mark_as_found", "mark_as_lost"]
+    actions = ["mark_as_found", "mark_as_lost", "mark_as_received"]
 
     def mark_as_found(self, request, queryset):
         updated = queryset.update(status="found")
@@ -70,7 +71,7 @@ class ItemPostAdmin(admin.ModelAdmin):
         self.message_user(request, f"Marked {updated} post(s) as LOST.")
     mark_as_lost.short_description = "Mark selected as LOST"
 
-
-# Optional: keep ItemImage out of the left menu (it’s managed inline).
-# If you want it visible separately, uncomment the line below.
-# admin.site.register(ItemImage)
+    def mark_as_received(self, request, queryset):
+        updated = queryset.update(received_from_poster=True)
+        self.message_user(request, f"Marked {updated} post(s) as RECEIVED.")
+    mark_as_received.short_description = "Mark selected as RECEIVED"
