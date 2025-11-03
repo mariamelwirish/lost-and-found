@@ -9,7 +9,7 @@ import { getUser } from "../utils/session";
  *  - kind: "lost" | "found"
  *  - mine: boolean   // true => only my posts
  */
-export default function PostsList({ kind, mine, filters = {} }) {
+export default function PostsList({ kind, mine, filters = {}, receivedOnly = false, excludeReceived = false }) {
   const navigate = useNavigate();
   const [items, setItems] = useState([]);   // ✅ start as array
   const [err, setErr] = useState("");
@@ -31,7 +31,7 @@ export default function PostsList({ kind, mine, filters = {} }) {
 
         // ✅ normalize to an array no matter the payload shape
         const data = res?.data;
-        const list = Array.isArray(data)
+        let list = Array.isArray(data)
           ? data
           : Array.isArray(data?.results)
           ? data.results
@@ -40,6 +40,12 @@ export default function PostsList({ kind, mine, filters = {} }) {
           : Array.isArray(data?.data)
           ? data.data
           : [];
+
+        if (receivedOnly) {
+          list = list.filter((it) => it?.received_from_poster === true);
+        } else if (excludeReceived) {
+          list = list.filter((it) => it?.received_from_poster !== true);
+        }
 
         if (!alive) return;
         setItems(list);
@@ -56,7 +62,7 @@ export default function PostsList({ kind, mine, filters = {} }) {
     return () => {
       alive = false;
     };
-  }, [kind, mine, JSON.stringify(filters)]);
+  }, [kind, mine, JSON.stringify(filters), receivedOnly, excludeReceived]);
 
 
   const handleDelete = async (postId, e) => {
