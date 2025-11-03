@@ -201,6 +201,11 @@ export default function PostsList({ kind, mine, filters = {} }) {
               <div style={{ fontSize: 12, color: "#666" }}>
                 By {p.owner_name || "Unknown"}
               </div>
+              {p.received_from_poster && (
+                <div style={{ marginTop: 6, fontSize: 11, color: "#059669" }}>
+                  ✓ Received from poster
+                </div>
+              )}
               {mine && user && (
                 <></>
               )}
