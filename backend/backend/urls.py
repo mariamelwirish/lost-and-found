@@ -27,7 +27,6 @@ urlpatterns = [
     path("api/", include(router.urls)),
     path('debug/send-test-email/', send_test_email),
     path("health/", health),
-    path("api/", include("accounts.urls")),
 ]
 
 # Always add media files serving (even in production for now)
@@ -35,4 +34,3 @@ urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 from django.conf import settings
 from django.conf.urls.static import static
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-

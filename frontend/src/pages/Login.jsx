@@ -33,16 +33,14 @@ export default function Login() {
 
       // Fetch user profile to get first_name and last_name
       try {
-        // const profileRes = await api.get("/api/me/profile/");
-        const profileRes = await api.get("/api/me/profile/");
+        const profileRes = await api.get("/api/users/profile/");
         setUser(profileRes.data);
       } catch {
         // Fallback if profile fetch fails
         setUser({ email });
       }
 
-      // navigate("/home");
-      navigate("/profile");
+      navigate("/home");
     } catch (err) {
       if (err.response && err.response.status === 401) {
         setError("Invalid email or password.");

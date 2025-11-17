@@ -60,7 +60,6 @@ CSRF_TRUSTED_ORIGINS = [f"https://{h.lstrip('.')}" for h in ALLOWED_HOSTS if h]
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
-        "rest_framework.authentication.SessionAuthentication",
     ),
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticated",
@@ -84,7 +83,6 @@ INSTALLED_APPS = [
     "whitenoise.runserver_nostatic",
     "django.contrib.staticfiles",
     "api",
-    "accounts",
     "rest_framework",
     "corsheaders",
 ]
@@ -253,9 +251,4 @@ SESSION_COOKIE_SECURE = not DEBUG
 CSRF_COOKIE_SECURE = not DEBUG
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
-MEDIA_URL = "/media/"
-from pathlib import Path
-MEDIA_ROOT = Path(BASE_DIR) / "media"
-LOGIN_REDIRECT_URL = "/api/me/profile/"
-LOGOUT_REDIRECT_URL = "/api-auth/login/"
 
