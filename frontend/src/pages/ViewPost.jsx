@@ -10,9 +10,7 @@ export default function ViewPost() {
   const [post, setPost] = useState(null);
   const [loading, setLoading] = useState(true);
   const [index, setIndex] = useState(0);
-  const [saving, setSaving] = useState(false);
   const user = getUser();
-
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -46,20 +44,6 @@ export default function ViewPost() {
 
   const handleEdit = () => {
     nav(`/my-posts/edit/${id}`, { state: { post }, replace: true });
-  };
-
-  const handleMarkReceived = async () => {
-    if (!confirm("Confirm item has been received from the poster?")) return;
-    try {
-      setSaving(true);
-      const res = await api.post(`/api/posts/${id}/mark_received/`);
-      setPost(res.data);
-    } catch (e) {
-      console.error(e);
-      alert(e?.response?.data?.detail || "Failed to mark as received");
-    } finally {
-      setSaving(false);
-    }
   };
 
   if (loading) {
@@ -164,14 +148,6 @@ export default function ViewPost() {
               <div style={{ padding: "4px 0", fontWeight: "500" }}>{post.owner_name}</div>
             </div>
 
-            {post.received_from_poster && (
-              <div style={{ margin: "8px 0", color: "#059669", fontWeight: 500 }}>
-                ✓ Received from poster{post.received_at ? ` on ${new Date(post.received_at).toLocaleString()}` : ""}
-              </div>
-            )}
-
-            
-
             {(post.contact_email || post.contact_phone) && (
               <div className="field">
                 <span>Contact Info</span>
@@ -218,11 +194,6 @@ export default function ViewPost() {
               </button>
               {isOwner && (
                 <>
-                  {!post.received_from_poster && (
-                    <button className="btn primary" type="button" onClick={handleMarkReceived} disabled={saving}>
-                      {saving ? "Marking…" : "Mark as received from poster"}
-                    </button>
-                  )}
                   <button className="btn" type="button" onClick={handleEdit}>
                     Edit
                   </button>

@@ -9,7 +9,7 @@ import { getUser } from "../utils/session";
  *  - kind: "lost" | "found"
  *  - mine: boolean   // true => only my posts
  */
-export default function PostsList({ kind, mine, filters = {}, receivedOnly = false, excludeReceived = false }) {
+export default function PostsList({ kind, mine, filters = {} }) {
   const navigate = useNavigate();
   const [items, setItems] = useState([]);   // ✅ start as array
   const [err, setErr] = useState("");
@@ -31,7 +31,7 @@ export default function PostsList({ kind, mine, filters = {}, receivedOnly = fal
 
         // ✅ normalize to an array no matter the payload shape
         const data = res?.data;
-        let list = Array.isArray(data)
+        const list = Array.isArray(data)
           ? data
           : Array.isArray(data?.results)
           ? data.results
@@ -40,12 +40,6 @@ export default function PostsList({ kind, mine, filters = {}, receivedOnly = fal
           : Array.isArray(data?.data)
           ? data.data
           : [];
-
-        if (receivedOnly) {
-          list = list.filter((it) => it?.received_from_poster === true);
-        } else if (excludeReceived) {
-          list = list.filter((it) => it?.received_from_poster !== true);
-        }
 
         if (!alive) return;
         setItems(list);
@@ -62,7 +56,7 @@ export default function PostsList({ kind, mine, filters = {}, receivedOnly = fal
     return () => {
       alive = false;
     };
-  }, [kind, mine, JSON.stringify(filters), receivedOnly, excludeReceived]);
+  }, [kind, mine, JSON.stringify(filters)]);
 
 
   const handleDelete = async (postId, e) => {
@@ -207,11 +201,6 @@ export default function PostsList({ kind, mine, filters = {}, receivedOnly = fal
               <div style={{ fontSize: 12, color: "#666" }}>
                 By {p.owner_name || "Unknown"}
               </div>
-              {p.received_from_poster && (
-                <div style={{ marginTop: 6, fontSize: 11, color: "#059669" }}>
-                  ✓ Received from poster
-                </div>
-              )}
               {mine && user && (
                 <></>
               )}

@@ -19,10 +19,6 @@ class ItemPost(models.Model):
     contact_phone = models.CharField(max_length=20, blank=True, null=True)
     creationDate = models.DateTimeField(auto_now_add=True, db_index=True)
     updateDate = models.DateTimeField(auto_now=True)
-    received_from_poster = models.BooleanField(default=False, db_index=True)
-    received_at = models.DateTimeField(blank=True, null=True)
-    received_by = models.ForeignKey(User, on_delete=CASCADE, related_name="received_posts", blank=True, null=True)
-
 
     def __str__(self):
         return f"{self.title} ({self.status})"

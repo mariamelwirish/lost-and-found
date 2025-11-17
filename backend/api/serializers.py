@@ -42,8 +42,8 @@ class ItemPostSerializer(serializers.ModelSerializer):
         model = ItemPost
         fields = ["id", "title", "description", "status", "location", "date", 
                  "owner", "owner_name", "creationDate", "updateDate", "images", "uploaded_images", "delete_images",
-                 "contact_email", "contact_phone", "received_from_poster", "received_at", "received_by"]
-        read_only_fields = ["owner", "creationDate", "updateDate", "received_from_poster", "received_at", "received_by"]
+                 "contact_email", "contact_phone"]
+        read_only_fields = ["owner", "creationDate", "updateDate"]
 
     def create(self, validated_data):
         uploaded_images = validated_data.pop("uploaded_images", [])

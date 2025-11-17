@@ -16,12 +16,7 @@ export default function Found() {
       </section>
 
       <SearchBar defaultKind="found" showKind={false} onChange={setFilters} />
-      <PostsList kind="found" mine={false} filters={filters} excludeReceived />
-
-      <main className="container" style={{ marginTop: 24 }}>
-        <h3 style={{ margin: "0 0 12px" }}>Received from poster</h3>
-      </main>
-      <PostsList kind="found" mine={false} filters={filters} receivedOnly />
+      <PostsList kind="found" mine={false} filters={filters} />
     </>
   );
 }
