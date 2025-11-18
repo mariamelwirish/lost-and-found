@@ -23,6 +23,8 @@ import ForgotPassword from "./pages/ForgotPassword.jsx";
 import ResetPasswordConfirm from "./pages/ResetPasswordConfirm.jsx";
 import Home from "./pages/Home.jsx";
 import ProfilePage from "./pages/ProfilePage.jsx";
+import SmokeTestOverlay from "./pages/SmokeTestOverlay.jsx";
+import "./pages/SmokeTestOverlay.css";
 
 // Admin pages
 import AdminDashboard from "./pages/admin/Dashboard.jsx";
@@ -33,6 +35,7 @@ import "./index.css";
 import "./styles/admin.css";
 
 const sentryDsn = import.meta.env.VITE_SENTRY_DSN;
+const sentryQueryParams = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
 if (sentryDsn) {
   const tracingIntegration =
     typeof Sentry.browserTracingIntegration === "function"
@@ -58,9 +61,25 @@ if (sentryDsn) {
   });
 }
 
+const sentrySmokeTest = sentryDsn && sentryQueryParams?.has("sentryTest");
+if (sentrySmokeTest) {
+  const smokeTestError = new Error("Frontend Sentry smoke test triggered via ?sentryTest=1");
+  if (typeof Sentry.captureException === "function") {
+    Sentry.captureException(smokeTestError, {
+      tags: { smoke_test: "frontend-query" },
+      level: "warning",
+    });
+  }
+  // Throw on next tick so devs notice the failure without blocking initialization.
+  setTimeout(() => {
+    throw smokeTestError;
+  }, 0);
+}
+
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <BrowserRouter>
+      {sentrySmokeTest && <SmokeTestOverlay />}
       <Routes>
         {/* Landing page - redirects based on auth status */}
         <Route path="/" element={<AuthRedirect><Navigate to="/login" replace /></AuthRedirect>} />
