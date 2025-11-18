@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { getUser } from "../utils/session";
 
 export default function Home() {
@@ -7,6 +7,13 @@ export default function Home() {
   const displayName = user?.first_name && user?.last_name 
     ? `${user.first_name} ${user.last_name}`
     : user?.username || user?.email?.split("@")[0] || "";
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.has("sentryTest")) {
+      throw new Error("Frontend Sentry smoke test (remove query param when done)");
+    }
+  }, []);
 
   return (
     <main className="hero">
