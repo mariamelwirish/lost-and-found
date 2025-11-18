@@ -21,6 +21,7 @@ import Signup from "./pages/Signup.jsx";
 import ForgotPassword from "./pages/ForgotPassword.jsx";
 import ResetPasswordConfirm from "./pages/ResetPasswordConfirm.jsx";
 import Home from "./pages/Home.jsx";
+import ProfilePage from "./pages/ProfilePage.jsx";
 
 // Admin pages
 import AdminDashboard from "./pages/admin/Dashboard.jsx";
@@ -60,6 +61,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
           <Route path="/posts/:id" element={<ViewPost />} />
           <Route path="/my-posts/create" element={<CreatePost />} />
           <Route path="/my-posts/edit/:id" element={<EditPost />} />
+            <Route path="/profile" element={<ProfilePage />} />
         </Route>
 
         {/* Redirect all other routes to landing */}

@@ -65,6 +65,10 @@ export default function Navbar() {
                       <span className="sep" />
                     </>
                   )}
+                  <NavLink to="/profile" className={active}>
+                    Profile
+                  </NavLink>
+                  <span className="sep" />
                   <a
                     href="#"
                     onClick={(e) => {
