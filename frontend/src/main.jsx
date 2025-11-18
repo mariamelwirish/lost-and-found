@@ -1,6 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import * as Sentry from "@sentry/react";
 
 import AppLayout from "./layouts/AppLayout.jsx";
 import AdminLayout from "./layouts/AdminLayout.jsx";
@@ -30,6 +31,32 @@ import PostManagement from "./pages/admin/PostManagement.jsx";
 
 import "./index.css";
 import "./styles/admin.css";
+
+const sentryDsn = import.meta.env.VITE_SENTRY_DSN;
+if (sentryDsn) {
+  const tracingIntegration =
+    typeof Sentry.browserTracingIntegration === "function"
+      ? Sentry.browserTracingIntegration()
+      : Sentry.BrowserTracing
+      ? new Sentry.BrowserTracing()
+      : null;
+
+  const replayIntegration =
+    typeof Sentry.replayIntegration === "function"
+      ? Sentry.replayIntegration()
+      : Sentry.Replay
+      ? new Sentry.Replay()
+      : null;
+
+  Sentry.init({
+    dsn: sentryDsn,
+    integrations: [tracingIntegration, replayIntegration].filter(Boolean),
+    tracesSampleRate: Number(import.meta.env.VITE_SENTRY_TRACES_SAMPLE_RATE ?? 0.2),
+    replaysSessionSampleRate: Number(import.meta.env.VITE_SENTRY_REPLAY_SAMPLE_RATE ?? 0.0),
+    environment: import.meta.env.VITE_ENVIRONMENT ?? "development",
+    release: import.meta.env.VITE_SENTRY_RELEASE,
+  });
+}
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
