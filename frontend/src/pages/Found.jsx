@@ -18,10 +18,10 @@ export default function Found() {
       <SearchBar defaultKind="found" showKind={false} onChange={setFilters} />
       <PostsList kind="found" mine={false} filters={filters} excludeReceived />
 
-      <main className="container" style={{ marginTop: 24 }}>
+      <main className="container" style={{ marginTop: 24, paddingTop: 0, paddingBottom: 8 }}>
         <h3 style={{ margin: "0 0 12px" }}>Received from poster</h3>
       </main>
-      <PostsList kind="found" mine={false} filters={filters} receivedOnly />
+      <PostsList kind="found" mine={false} filters={filters} receivedOnly compact />
     </>
   );
 }

@@ -887,10 +887,34 @@ button:hover {
   transform: translateY(-2px) !important;
 }
 
-.subnav .tab.active:hover {
+/* My Posts button (2nd tab): hover fills purple even when inactive */
+.subnav .tab:nth-of-type(2):not(.active):hover,
+.subnav .tab:nth-of-type(2):not(.active):focus-visible {
   background: var(--brand) !important;
-  color: white !important;
+  color: #fff !important;
+  border-color: var(--brand) !important;
+}
+
+.subnav .tab:nth-of-type(2):not(.active):active {
+  background: var(--brand-dark) !important;
+  color: #fff !important;
+  border-color: var(--brand-dark) !important;
+  transform: translateY(-1px) !important;
+}
+
+.subnav .tab.active:hover,
+.subnav .tab.active:focus-visible {
+  background: white !important;
+  color: var(--brand) !important;
+  border-color: var(--brand) !important;
   transform: translateY(-2px) !important;
+}
+
+.subnav .tab.active:active {
+  background: var(--brand-dark) !important;
+  color: #fff !important;
+  border-color: var(--brand-dark) !important;
+  transform: translateY(-1px) !important;
 }
 
 /* Extra specific for login/signup pages */
@@ -940,6 +964,173 @@ a.btn.btn-primary:hover {
   color: var(--brand) !important;
   border-color: var(--brand) !important;
   transform: translateY(-2px) !important;
+}
+
+/* ===== Shared card & profile page styles ===== */
+.card {
+  background: #fff;
+  border: 1px solid var(--muted);
+  border-radius: 16px;
+}
+
+.profile-page {
+  padding-block: 32px 48px;
+}
+
+.profile-page .card {
+  border-radius: 20px;
+}
+
+
+.btn-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 26px;
+  border-radius: 12px;
+  border: 1px solid var(--brand);
+  background: var(--brand);
+  color: #fff;
+  font-weight: 600;
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+  text-decoration: none;
+  min-height: 44px;
+  text-align: center;
+}
+
+.btn-pill:hover,
+.btn-pill:focus-visible {
+  background: #fff;
+  color: var(--brand);
+  border-color: var(--brand);
+  transform: translateY(-2px);
+}
+
+.btn-pill:active {
+  background: var(--brand-dark);
+  color: #fff;
+  border-color: var(--brand-dark);
+  transform: translateY(-1px);
+}
+
+.btn-pill:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-pill--ghost {
+  background: transparent;
+  color: var(--brand);
+  border-color: var(--brand);
+}
+
+.btn-pill--ghost:hover,
+.btn-pill--ghost:focus-visible {
+  background: #fff;
+  color: var(--brand-darker);
+  border-color: var(--brand-darker);
+}
+
+.btn-pill--ghost:active {
+  background: #f3e6fb;
+  color: var(--brand-darker);
+  border-color: var(--brand-darker);
+  transform: translateY(-1px);
+}
+
+.btn-pill--block {
+  display: flex;
+  width: 100%;
+}
+
+.profile-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 20px;
+}
+
+.profile-grid--security {
+  margin-top: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+.profile-field--span-2 {
+  grid-column: span 2;
+}
+
+.profile-field--security {
+  background: #fff;
+  border-color: var(--brand);
+  box-shadow: 0 8px 26px rgba(23, 49, 62, 0.06);
+}
+
+.profile-field {
+  padding: 16px 18px;
+  border: 1px solid #e6daef;
+  border-radius: 16px;
+  background: #fcf9ff;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.profile-field--editing {
+  border-color: var(--brand);
+  background: #fff;
+  box-shadow: 0 8px 26px rgba(23, 49, 62, 0.06);
+}
+
+.profile-field--locked {
+  background: #f7f4fb;
+}
+
+.profile-label {
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #7c6b8f;
+  margin: 0;
+}
+
+.profile-input {
+  border: none;
+  background: transparent;
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--ink);
+  padding: 0;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.profile-input:not(.profile-input--readonly) {
+  border-bottom: 2px solid transparent;
+  padding-bottom: 2px;
+}
+
+.profile-input:not(.profile-input--readonly):focus {
+  border-color: var(--brand);
+}
+
+.profile-input--readonly {
+  color: #534b5f;
+  cursor: default;
+}
+
+.profile-field--locked .profile-input {
+  cursor: not-allowed;
+}
+
+.profile-hint {
+  font-size: 12px;
+  margin: 0;
+  color: #9285a1;
 }
 /* ViewPost card improvements */
 .view-post-card {

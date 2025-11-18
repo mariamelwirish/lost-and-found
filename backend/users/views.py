@@ -1,6 +1,6 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status, generics
 from .serializers import EmailCheckSerializer
 from .models import VerificationCode
 from .email_utils import send_verification_email, send_reset_password_email
@@ -11,6 +11,8 @@ from .models import PendingSignup
 from .serializers import SignupStartSerializer, VerifyCodeSerializer, RequestResetPasswordSerializer, ResetPasswordSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from .serializers import EmailTokenObtainPairSerializer
+from .serializers import UserSerializer
+from rest_framework.permissions import IsAuthenticated
 
 class SendVerificationCodeView(APIView):
     authentication_classes = []
@@ -166,16 +168,15 @@ class EmailTokenObtainPairView(TokenObtainPairView):
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def get_user_profile(request):
-    user = request.user
-    return Response({
-        'id': user.id,
-        'username': user.username,
-        'email': user.email,
-        'first_name': user.first_name,
-        'last_name': user.last_name,
-        'phone': getattr(user, 'phone', ''),
-        'is_staff': user.is_staff,
-    })
+class UserProfileView(generics.RetrieveUpdateAPIView):
+    """Retrieve or update the authenticated user's basic profile fields.
+
+    This view exposes only the fields gathered at signup (username, email,
+    first_name, last_name, phone). Password changes are handled via the
+    existing password-reset endpoints which use verification codes.
+    """
+    serializer_class = UserSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        return self.request.user

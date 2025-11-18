@@ -9,7 +9,14 @@ import { getUser } from "../utils/session";
  *  - kind: "lost" | "found"
  *  - mine: boolean   // true => only my posts
  */
-export default function PostsList({ kind, mine, filters = {}, receivedOnly = false, excludeReceived = false }) {
+export default function PostsList({
+  kind,
+  mine,
+  filters = {},
+  receivedOnly = false,
+  excludeReceived = false,
+  compact = false,
+}) {
   const navigate = useNavigate();
   const [items, setItems] = useState([]);   // ✅ start as array
   const [err, setErr] = useState("");
@@ -109,9 +116,13 @@ export default function PostsList({ kind, mine, filters = {}, receivedOnly = fal
       ? "When someone reports a lost item, it will appear here."
       : "When someone reports a found item, it will appear here.");
 
+  const containerProps = compact
+    ? { style: { paddingTop: 12, paddingBottom: 12 } }
+    : {};
+
   if (loading) {
     return (
-      <main className="container">
+      <main className="container" {...containerProps}>
         <div style={{ padding: 24, background: "#fff", borderRadius: 12, border: "1px solid var(--muted, #e5e5e5)" }}>
           Loading…
         </div>
@@ -121,7 +132,7 @@ export default function PostsList({ kind, mine, filters = {}, receivedOnly = fal
 
   if (items.length === 0) {
     return (
-      <main className="container">
+      <main className="container" {...containerProps}>
         {err && <div className="error" style={{ marginBottom: 12 }}>{err}</div>}
         <div className="card" style={{ padding: 24, background: "#fff", borderRadius: 12, border: "1px solid var(--muted, #e5e5e5)" }}>
           <h3 style={{ marginTop: 0 }}>{emptyTitle}</h3>
@@ -132,7 +143,7 @@ export default function PostsList({ kind, mine, filters = {}, receivedOnly = fal
   }
 
   return (
-    <main className="container">
+    <main className="container" {...containerProps}>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: 16 }}>
         {items.map((p, idx) => (
           <article 
