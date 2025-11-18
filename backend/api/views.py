@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.contrib.auth import get_user_model
+from django.http import JsonResponse
 from rest_framework import generics, viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -34,6 +35,7 @@ class ItemPostViewSet(viewsets.ModelViewSet):
        return [p() for p in permission_classes]
     
     def get_queryset(self):
+        # raise RuntimeError("Sentry smoke test (remove once verifiedd)")
         queryset = ItemPost.objects.all()
         
         # Filter by status (kind)
@@ -102,4 +104,9 @@ class ItemPostViewSet(viewsets.ModelViewSet):
             post.save(update_fields=["received_from_poster", "received_at", "received_by", "updateDate"])
         serializer = self.get_serializer(post)
         return Response(serializer.data)
+
+
+def sentry_test_endpoint(_request):
+    """Raises an error on demand so Sentry wiring can be verified in any env."""
+    raise RuntimeError("Manual Sentry verification endpoint hit")
 

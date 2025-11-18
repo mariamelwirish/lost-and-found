@@ -12,11 +12,15 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from pathlib import Path
 from datetime import timedelta
+import logging
 import dj_database_url
 from dotenv import load_dotenv
 import os
 import environ
 from pathlib import Path
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
+from sentry_sdk.integrations.logging import LoggingIntegration
 
 load_dotenv()
 
@@ -48,6 +52,22 @@ DEBUG = env.bool("DJANGO_DEBUG", default=True)
 ALLOWED_HOSTS = (
     ["*"] if DEBUG else [h for h in env("DJANGO_ALLOWED_HOSTS").split(",") if h]
 )
+
+SENTRY_DSN = env("SENTRY_DSN", default=None)
+SENTRY_TRACES_SAMPLE_RATE = env.float("SENTRY_TRACES_SAMPLE_RATE", default=0.2)
+SENTRY_ENVIRONMENT = env("SENTRY_ENVIRONMENT", default="development" if DEBUG else "production")
+SENTRY_RELEASE = env("SENTRY_RELEASE", default=None)
+
+if SENTRY_DSN:
+    sentry_logging = LoggingIntegration(level=logging.INFO, event_level=logging.ERROR)
+    sentry_sdk.init(
+        dsn=SENTRY_DSN,
+        integrations=[DjangoIntegration(), sentry_logging],
+        traces_sample_rate=SENTRY_TRACES_SAMPLE_RATE,
+        send_default_pii=True,
+        environment=SENTRY_ENVIRONMENT,
+        release=SENTRY_RELEASE,
+    )
 
 # CSRF trusted origins (set after deploy, e.g. https://your-api.onrender.com, https://your-frontend.vercel.app)
 CSRF_TRUSTED_ORIGINS = [f"https://{h.lstrip('.')}" for h in ALLOWED_HOSTS if h]
@@ -251,4 +271,24 @@ SESSION_COOKIE_SECURE = not DEBUG
 CSRF_COOKIE_SECURE = not DEBUG
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "simple": {
+            "format": "[%(asctime)s] %(levelname)s %(name)s: %(message)s",
+        }
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "simple",
+        },
+    },
+    "root": {
+        "handlers": ["console"],
+        "level": "INFO",
+    },
+}
 

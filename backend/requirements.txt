@@ -23,3 +23,5 @@ tzdata==2025.2
 urllib3==2.5.0
 whitenoise==6.11.0
 Pillow>=9.0.0
+sentry-sdk[django]
+structlog
