@@ -45,7 +45,8 @@ export default function EditPost() {
         const res = await api.get(`/api/posts/${id}/`);
         const postData = res.data;
         
-        if (postData.owner !== user.id) {
+        const canManage = postData.owner === user.id || user.is_staff;
+        if (!canManage) {
           alert("You can only edit your own posts");
           nav(-1);
           return;

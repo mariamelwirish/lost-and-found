@@ -524,6 +524,96 @@ a {
 .charcount { text-align: right; font-size: 12px; opacity: .6; margin-top: 4px; }
 
 .actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 8px; }
+
+.view-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 14px;
+  margin-top: 28px;
+}
+
+.view-btn {
+  flex: 1 1 160px;
+  min-height: 50px;
+  border-radius: 14px;
+  border: 2px solid var(--brand);
+  background: #fff;
+  color: var(--brand);
+  font-weight: 600;
+  font-size: 15px;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(23, 49, 62, 0.05);
+  transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.view-btn:hover,
+.view-btn:focus-visible {
+  background: var(--brand);
+  color: #fff;
+  transform: translateY(-2px);
+}
+
+.view-btn--ghost {
+  background: #fff;
+  color: var(--brand-darker);
+}
+
+.view-btn--primary {
+  background: var(--brand);
+  color: #fff;
+  box-shadow: 0 10px 24px rgba(156, 129, 168, 0.3);
+}
+
+.view-btn--primary:hover,
+.view-btn--primary:focus-visible {
+  background: #fff;
+  color: var(--brand);
+}
+
+.view-btn--warning {
+  border-color: #f4b400;
+  background: #fff9e6;
+  color: #a16207;
+}
+
+.view-btn--warning:hover,
+.view-btn--warning:focus-visible {
+  background: #f4b400;
+  color: #fff;
+  border-color: #d97706;
+}
+
+.view-btn--danger {
+  border-color: #f87171;
+  color: #b91c1c;
+  background: #fff7f7;
+  box-shadow: 0 6px 18px rgba(217, 70, 70, 0.18);
+}
+
+.view-btn--danger:hover,
+.view-btn--danger:focus-visible {
+  background: #b91c1c;
+  color: #fff;
+  border-color: #b91c1c;
+}
+
+.view-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background: #f7f1fb;
+  color: #7a6a8d;
+  border-color: #ddcceb;
+  transform: none;
+  box-shadow: none;
+}
+
+@media (max-width: 640px) {
+  .view-actions {
+    flex-direction: column;
+  }
+}
 .btn { border: 0; padding: 10px 16px; border-radius: 999px; background: #e6e0ea; cursor: pointer; transition: all 0.2s ease; }
 .btn:hover { background: #d4c8d8; transform: translateY(-1px); }
 .btn.primary { background: var(--brand, #C4B0CD); color: #fff; }

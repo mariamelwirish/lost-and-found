@@ -62,6 +62,20 @@ export default function ViewPost() {
     }
   };
 
+  const handleRevokeReceived = async () => {
+    if (!confirm("Revoke the received status for this post?")) return;
+    try {
+      setSaving(true);
+      const res = await api.post(`/api/posts/${id}/revoke_received/`);
+      setPost(res.data);
+    } catch (e) {
+      console.error(e);
+      alert(e?.response?.data?.detail || "Failed to revoke received status");
+    } finally {
+      setSaving(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="create-shell">
@@ -76,7 +90,7 @@ export default function ViewPost() {
   if (!post) return null;
 
   const images = post.images || [];
-  const isOwner = user && post.owner === user.id;
+  const canManage = user && (post.owner === user.id || user.is_staff);
 
   return (
     <div className="create-shell">
@@ -212,26 +226,35 @@ export default function ViewPost() {
               </div>
             </div>
 
-            <div className="actions">
-              <button className="btn" type="button" onClick={() => nav(post.status === "lost" ? "/lost" : "/found")}>
-                Close
-              </button>
-              {isOwner && (
-                <>
-                  {!post.received_from_poster && (
-                    <button className="btn primary" type="button" onClick={handleMarkReceived} disabled={saving}>
-                      {saving ? "Marking…" : "Mark as received from poster"}
-                    </button>
-                  )}
-                  <button className="btn" type="button" onClick={handleEdit}>
-                    Edit
+            {canManage && (
+              <div className="view-actions">
+                <button className="view-btn view-btn--ghost" type="button" onClick={handleEdit}>
+                  Edit
+                </button>
+                {post.received_from_poster ? (
+                  <button
+                    className="view-btn view-btn--warning"
+                    type="button"
+                    onClick={handleRevokeReceived}
+                    disabled={saving}
+                  >
+                    {saving ? "Reverting…" : "Revoke received"}
                   </button>
-                  <button className="btn" type="button" onClick={handleDelete} style={{ color: "#dc2626" }}>
-                    Delete
+                ) : (
+                  <button
+                    className="view-btn view-btn--primary"
+                    type="button"
+                    onClick={handleMarkReceived}
+                    disabled={saving}
+                  >
+                    {saving ? "Marking…" : "Mark as received"}
                   </button>
-                </>
-              )}
-            </div>
+                )}
+                <button className="view-btn view-btn--danger" type="button" onClick={handleDelete}>
+                  Delete
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>

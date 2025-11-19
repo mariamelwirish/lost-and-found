@@ -95,12 +95,29 @@ class ItemPostViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=["post"], permission_classes=[IsAuthenticated])
     def mark_received(self, request, pk=None):
         post = self.get_object()
-        if post.owner_id != request.user.id:
-            return Response({"detail": "Only the post owner can mark as received."}, status=status.HTTP_403_FORBIDDEN)
+        is_owner = post.owner_id == request.user.id
+        is_admin = getattr(request.user, "is_staff", False) or getattr(request.user, "is_superuser", False)
+        if not (is_owner or is_admin):
+            return Response({"detail": "Only the post owner or an admin can mark as received."}, status=status.HTTP_403_FORBIDDEN)
         if not post.received_from_poster:
             post.received_from_poster = True
             post.received_at = timezone.now()
             post.received_by = request.user
+            post.save(update_fields=["received_from_poster", "received_at", "received_by", "updateDate"])
+        serializer = self.get_serializer(post)
+        return Response(serializer.data)
+
+    @action(detail=True, methods=["post"], permission_classes=[IsAuthenticated], url_path="revoke_received")
+    def revoke_received(self, request, pk=None):
+        post = self.get_object()
+        is_owner = post.owner_id == request.user.id
+        is_admin = getattr(request.user, "is_staff", False) or getattr(request.user, "is_superuser", False)
+        if not (is_owner or is_admin):
+            return Response({"detail": "Only the post owner or an admin can revoke this status."}, status=status.HTTP_403_FORBIDDEN)
+        if post.received_from_poster:
+            post.received_from_poster = False
+            post.received_at = None
+            post.received_by = None
             post.save(update_fields=["received_from_poster", "received_at", "received_by", "updateDate"])
         serializer = self.get_serializer(post)
         return Response(serializer.data)

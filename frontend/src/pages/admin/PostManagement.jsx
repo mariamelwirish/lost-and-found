@@ -9,6 +9,7 @@ export default function PostManagement() {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedPosts, setSelectedPosts] = useState([]);
+  const [receiptActionId, setReceiptActionId] = useState(null);
   // status filter is always synced with URL 'kind' param
   const getKindFromUrl = () => {
     const params = new URLSearchParams(location.search);
@@ -64,6 +65,26 @@ export default function PostManagement() {
     } catch (error) {
       console.error('Failed to delete post:', error);
       alert('Failed to delete post. Please try again.');
+    }
+  };
+
+  const toggleReceiptStatus = async (postId, currentlyReceived) => {
+    const message = currentlyReceived
+      ? 'Revoke the received status for this post?'
+      : 'Mark this post as received?';
+    if (!confirm(message)) {
+      return;
+    }
+    try {
+      setReceiptActionId(postId);
+      const endpoint = currentlyReceived ? 'revoke_received' : 'mark_received';
+      await api.post(`/api/posts/${postId}/${endpoint}/`);
+      await fetchPosts();
+    } catch (error) {
+      console.error('Failed to update receipt status:', error);
+      alert(error?.response?.data?.detail || 'Failed to update receipt status.');
+    } finally {
+      setReceiptActionId(null);
     }
   };
 
@@ -241,6 +262,15 @@ export default function PostManagement() {
                 <div className="actions-cell">
                   <button onClick={() => window.open(`/posts/${post.id}`, '_blank')} className="admin-btn sm ghost">View</button>
                   <button onClick={() => navigate(`/my-posts/edit/${post.id}`)} className="admin-btn sm primary">Edit</button>
+                  <button
+                    onClick={() => toggleReceiptStatus(post.id, post.received_from_poster)}
+                    className={`admin-btn sm ${post.received_from_poster ? 'ghost' : 'neutral'}`}
+                    disabled={receiptActionId === post.id}
+                  >
+                    {receiptActionId === post.id
+                      ? (post.received_from_poster ? 'Reverting…' : 'Marking…')
+                      : (post.received_from_poster ? 'Revoke received' : 'Mark received')}
+                  </button>
                   <button onClick={() => deletePost(post.id)} className="admin-btn sm danger">Delete</button>
                 </div>
               </td>
