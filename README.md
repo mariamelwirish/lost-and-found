@@ -79,6 +79,20 @@ npm run dev
 - Frontend: http://localhost:5173
 - Backend API: http://localhost:8000
 
+### 6. Testing
+**Backend Tests**
+```bash
+cd backend
+DATABASE_URL=sqlite:///db.sqlite3 python manage.py test
+```
+
+**Frontend Tests**
+```bash
+cd frontend
+npm install
+npm test -- --run
+```
+
 ## Important Notes
 - Never commit `.env` files to git
 - Use SendGrid API key for email functionality
