@@ -154,4 +154,6 @@ class IsOwnerOrReadOnlyTests(TestCase):
 
         stranger = SimpleNamespace(id=3, is_staff=False)
         request = SimpleNamespace(method="PATCH", user=stranger)
-        self.assertFalse(self.permission.has_object_permission(request, None, self.post))
+        self.assertFalse(
+            self.permission.has_object_permission(request, None, self.post)
+        )

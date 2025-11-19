@@ -51,7 +51,9 @@ class SignupAndAuthFlowTests(APITestCase):
         )
 
         response = self.client.post(
-            "/api/users/verify-code/", {"email": email, "code": code.code}, format="json"
+            "/api/users/verify-code/",
+            {"email": email, "code": code.code},
+            format="json",
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -96,7 +98,9 @@ class SignupAndAuthFlowTests(APITestCase):
             "password2": self._strong_password(),
         }
 
-        response = self.client.post("/api/users/reset-password/", payload, format="json")
+        response = self.client.post(
+            "/api/users/reset-password/", payload, format="json"
+        )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         user.refresh_from_db()
