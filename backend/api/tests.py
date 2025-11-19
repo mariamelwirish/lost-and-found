@@ -21,7 +21,6 @@ User = get_user_model()
 
 
 class MediaRootMixin:
-    """Utility mixin to isolate MEDIA_ROOT per test class."""
 
     @classmethod
     def setUpClass(cls):
