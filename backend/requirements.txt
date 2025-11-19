@@ -25,3 +25,5 @@ whitenoise==6.11.0
 Pillow>=9.0.0
 sentry-sdk[django]
 structlog
+django-storages==1.14.4
+boto3==1.35.20
