@@ -1259,7 +1259,7 @@ a.btn.btn-primary:hover {
   min-width: 0; padding: 12px 16px 12px 40px; border: 1px solid rgba(0,0,0,0.08); border-radius: 12px; font-size: 15px; outline: none; background: #fff; box-shadow: 0 1px 2px rgba(16,24,40,0.03); position: relative; background-repeat: no-repeat; background-position: 12px center; background-size: 18px 18px;
 }
 .search-control.title { flex: 1.6; }
-.search-control.location { flex: 1; }
+.search-control.location { flex: 1; -webkit-appearance: none; appearance: none; }
 .search-control.date { flex: 0 0 220px; }
 /* subtle icons */
 .search-control.title { background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="%236b7280"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 103.75 3.75a7.5 7.5 0 0012.9 12.9z"/></svg>'); }
