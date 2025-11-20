@@ -62,7 +62,7 @@ if SENTRY_DSN:
     )
 
 # =====================================
-# STATIC FILES (MUST BE BEFORE STORAGES)
+# STATIC FILES
 # =====================================
 
 STATIC_URL = "/static/"
@@ -75,26 +75,35 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 SUPABASE_URL = env("SUPABASE_URL", default="")
 SUPABASE_KEY = env("SUPABASE_KEY", default="")
 SUPABASE_BUCKET_NAME = env("SUPABASE_BUCKET_NAME", default="item-images")
+
 USE_SUPABASE = env.bool("USE_SUPABASE", default=True)
 
+if USE_SUPABASE:
+    print(">>> USING SUPABASE STORAGE")
+else:
+    print(">>> USING LOCAL FILESYSTEM STORAGE")
+
 # =====================================
-# DJANGO 4.2 STORAGE SYSTEM  (FIXED)
+# DJANGO 4.2 STORAGE SYSTEM
 # =====================================
 
-# This replaces DEFAULT_FILE_STORAGE completely.
-# Django 4.2+ ignores DEFAULT_FILE_STORAGE unless STORAGES is defined.
+# This is the correct way to define storage backends in Django 4.2+
+# DEFAULT_FILE_STORAGE is deprecated and ignored unless STORAGES is set.
 
 STORAGES = {
     "default": {
-        "BACKEND": "storage_backends.SupabaseStorage"
-        if USE_SUPABASE else "django.core.files.storage.FileSystemStorage",
+        "BACKEND": (
+            "storage_backends.SupabaseStorage"
+            if USE_SUPABASE else
+            "django.core.files.storage.FileSystemStorage"
+        )
     },
     "staticfiles": {
         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
     },
 }
 
-# Media config (paths unused by Supabase but required by Django)
+# Media settings (Supabase does not use local media but Django requires paths)
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
@@ -216,7 +225,7 @@ CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGINS = [u for u in env("CORS_ALLOWED_ORIGINS").split(",") if u]
 
 # =====================================
-# EMAIL (debug)
+# EMAIL
 # =====================================
 
 EMAIL_BACKEND = env("EMAIL_BACKEND", default="django.core.mail.backends.console.EmailBackend")
