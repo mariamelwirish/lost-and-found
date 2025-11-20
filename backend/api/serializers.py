@@ -16,17 +16,9 @@ class UserSerializer(serializers.ModelSerializer):
         return user
 
 class ItemImageSerializer(serializers.ModelSerializer):
-    image = serializers.SerializerMethodField()
-    
     class Meta:
         model = ItemImage
         fields = ["id", "image"]
-    
-    def get_image(self, obj):
-        request = self.context.get('request')
-        if request:
-            return request.build_absolute_uri(obj.image.url)
-        return obj.image.url
 
 class ItemPostSerializer(serializers.ModelSerializer):
     images = ItemImageSerializer(many=True, read_only=True)
