@@ -37,6 +37,10 @@ env = environ.Env(
     DJANGO_CSRF_TRUSTED=(str, ""),
     CORS_ALLOWED_ORIGINS=(str, ""),
     DB_SSL_REQUIRE=(bool, False),  # set True on Render/Neon
+    USE_SUPABASE=(bool, True),
+    SUPABASE_URL=(str, ""),
+    SUPABASE_KEY=(str, ""),
+    SUPABASE_BUCKET_NAME=(str, "item-images"),
 )
 environ.Env.read_env(BASE_DIR / ".env")
 
@@ -107,10 +111,7 @@ INSTALLED_APPS = [
     "corsheaders",
 ]
 
-USE_VERCEL_BLOB = env.bool("USE_VERCEL_BLOB", default=False)
-
-if USE_VERCEL_BLOB:
-    INSTALLED_APPS.append("storages")
+USE_SUPABASE = env.bool("USE_SUPABASE", default=True)
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -218,28 +219,24 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
-# Media files
-MEDIA_URL = "/media/"
-MEDIA_ROOT = BASE_DIR / "media"
+SUPABASE_URL = env("SUPABASE_URL", default="")
+SUPABASE_KEY = env("SUPABASE_KEY", default="")
+SUPABASE_BUCKET_NAME = env("SUPABASE_BUCKET_NAME", default="item-images")
 
-if USE_VERCEL_BLOB:
-    DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
-    AWS_ACCESS_KEY_ID = env("VERCEL_BLOB_ACCESS_KEY_ID")
-    AWS_SECRET_ACCESS_KEY = env("VERCEL_BLOB_SECRET_ACCESS_KEY")
-    AWS_STORAGE_BUCKET_NAME = env("VERCEL_BLOB_BUCKET")
-    AWS_S3_ENDPOINT_URL = env("VERCEL_BLOB_ENDPOINT")
-    AWS_S3_REGION_NAME = env("VERCEL_BLOB_REGION", default="auto")
-    AWS_S3_FILE_OVERWRITE = False
-    AWS_DEFAULT_ACL = "public-read"
-    AWS_QUERYSTRING_AUTH = False
-    AWS_S3_ADDRESSING_STYLE = "virtual"
-    AWS_S3_OBJECT_PARAMETERS = {"CacheControl": "max-age=86400"}
-    public_base = env("VERCEL_BLOB_PUBLIC_URL").rstrip("/")
-    if public_base.startswith("http"):
-        AWS_S3_CUSTOM_DOMAIN = public_base.split("://", 1)[1]
-    else:
-        AWS_S3_CUSTOM_DOMAIN = public_base
-    MEDIA_URL = f"{public_base}/"
+USE_SUPABASE = env.bool("USE_SUPABASE", default=True)
+
+if USE_SUPABASE:
+    DEFAULT_FILE_STORAGE = "storage_backends.SupabaseStorage"
+    # MEDIA_URL/MEDIA_ROOT are irrelevant for Supabase URLs, but Django
+    # expects them to exist. They won't be used to serve files.
+    MEDIA_URL = "/media/"
+    MEDIA_ROOT = BASE_DIR / "media"
+else:
+    # Hard fallback: still use Supabase backend even if flag is off,
+    # so we never store files locally.
+    DEFAULT_FILE_STORAGE = "storage_backends.SupabaseStorage"
+    MEDIA_URL = "/media/"
+    MEDIA_ROOT = BASE_DIR / "media"
 
 
 CORS_ALLOW_ALL_ORIGINS = True
@@ -293,8 +290,6 @@ STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 SESSION_COOKIE_SECURE = not DEBUG
 CSRF_COOKIE_SECURE = not DEBUG
-MEDIA_URL = "/media/"
-MEDIA_ROOT = BASE_DIR / "media"
 
 LOGGING = {
     "version": 1,
