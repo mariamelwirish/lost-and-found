@@ -2,6 +2,35 @@ import { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import api from "../api";
 
+function extractErrorMessage(payload) {
+  if (!payload) return "";
+  if (typeof payload === "string") return payload;
+  if (Array.isArray(payload)) return payload[0];
+  if (typeof payload === "object") {
+    const preferredKeys = [
+      "detail",
+      "error",
+      "message",
+      "non_field_errors",
+      "password",
+      "password2",
+      "code"
+    ];
+    for (const key of preferredKeys) {
+      const value = payload[key];
+      if (!value) continue;
+      if (Array.isArray(value)) return value[0];
+      if (typeof value === "string") return value;
+    }
+    const firstValue = Object.values(payload).find(Boolean);
+    if (firstValue) {
+      if (Array.isArray(firstValue)) return firstValue[0];
+      if (typeof firstValue === "string") return firstValue;
+    }
+  }
+  return "";
+}
+
 export default function ResetPasswordConfirm() {
   const [code, setCode] = useState("");
   const [password, setPassword] = useState("");
@@ -52,15 +81,11 @@ export default function ResetPasswordConfirm() {
       });
       setSuccess(true);
     } catch (err) {
-      if (err.response?.data?.error) {
-        setError(err.response.data.error);
-      } else if (err.response?.data?.password) {
-        setError(err.response.data.password[0]);
-      } else if (err.response?.data?.password2) {
-        setError(err.response.data.password2[0]);
-      } else {
-        setError("Failed to reset password. Please try again.");
-      }
+      const serverMessage = extractErrorMessage(err.response?.data);
+      setError(
+        serverMessage ||
+          "We couldn't reset your password. Double-check the verification code and try again."
+      );
       console.error("Password reset error:", err);
     } finally {
       setLoading(false);

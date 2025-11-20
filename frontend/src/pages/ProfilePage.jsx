@@ -236,8 +236,8 @@ export default function ProfilePage() {
 
   return (
     <main className="container profile-page">
-      <div style={{ display: "flex", gap: 24, flexWrap: "wrap" }}>
-        <section style={{ flex: "1 1 540px", minWidth: 0 }}>
+      <div className="profile-layout">
+        <section className="profile-main">
           <div className="card" style={{ padding: 32 }}>
             <header style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
               <div>
@@ -374,7 +374,7 @@ export default function ProfilePage() {
           </div>
         </section>
 
-        <aside style={{ flex: "0 0 320px", display: "flex", flexDirection: "column", gap: 16 }}>
+        <aside className="profile-side">
           <div className="card" style={{ padding: 20, background: "#f9f5ff" }}>
             <h4 style={{ marginTop: 0, marginBottom: 8 }}>My Found Posts</h4>
             <p style={{ margin: "0 0 16px", color: "#555" }}>Jump straight to the list of items you found and reported.</p>
@@ -383,7 +383,7 @@ export default function ProfilePage() {
             </Link>
           </div>
 
-          <div className="card" style={{ padding: 20, background: "#fff6f3" }}>
+          <div className="card" style={{ padding: 20, background: "#f9f5ff" }}>
             <h4 style={{ marginTop: 0, marginBottom: 8 }}>My Lost Posts</h4>
             <p style={{ margin: "0 0 16px", color: "#555" }}>Manage the items you reported as lost in one place.</p>
             <Link to="/lost/mine" className="btn-pill btn-pill--block">

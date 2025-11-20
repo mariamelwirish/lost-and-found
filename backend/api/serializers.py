@@ -37,6 +37,8 @@ class ItemPostSerializer(serializers.ModelSerializer):
         child=serializers.IntegerField(), write_only=True, required=False
     )
     owner_name = serializers.CharField(source="owner.get_full_name", read_only=True)
+    contact_email = serializers.EmailField(required=False, allow_blank=True, allow_null=True)
+    contact_phone = serializers.CharField(required=False, allow_blank=True, allow_null=True)
 
     class Meta:
         model = ItemPost
@@ -47,6 +49,7 @@ class ItemPostSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         uploaded_images = validated_data.pop("uploaded_images", [])
+        self._normalize_contact_fields(validated_data)
         post = ItemPost.objects.create(**validated_data)
         
         for image in uploaded_images:
@@ -57,6 +60,12 @@ class ItemPostSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         uploaded_images = validated_data.pop("uploaded_images", [])
         delete_images = validated_data.pop("delete_images", [])
+
+        request = self.context.get("request")
+        self._normalize_contact_fields(validated_data)
+        if request and request.user != instance.owner:
+            validated_data.pop("contact_email", None)
+            validated_data.pop("contact_phone", None)
         
         # Update the post fields
         for attr, value in validated_data.items():
@@ -72,3 +81,8 @@ class ItemPostSerializer(serializers.ModelSerializer):
             ItemImage.objects.create(post=instance, image=image)
         
         return instance
+
+    def _normalize_contact_fields(self, data):
+        for field in ("contact_email", "contact_phone"):
+            if field in data and not data[field]:
+                data[field] = None

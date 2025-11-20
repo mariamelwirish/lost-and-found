@@ -27,6 +27,7 @@ export default function EditPost() {
   const [submitting, setSubmitting] = useState(false);
   const [showEmail, setShowEmail] = useState(false);
   const [showPhone, setShowPhone] = useState(false);
+  const [isOwner, setIsOwner] = useState(false);
   const fileInputRef = useRef(null);
 
   const previews = useMemo(() => files.map(f => URL.createObjectURL(f)), [files]);
@@ -53,6 +54,7 @@ export default function EditPost() {
         }
         
         setPost(postData);
+        setIsOwner(postData.owner === user.id);
         setTitle(postData.title);
         // Handle location - check if it's a predefined option or custom
         const aubBuildings = [
@@ -162,9 +164,11 @@ export default function EditPost() {
       fd.append("description", desc);
       fd.append("status", post.status);
       
-      // Add contact info if user chose to show them
-      if (showEmail) fd.append("contact_email", user.email);
-      if (showPhone) fd.append("contact_phone", user.phone || "");
+      if (isOwner) {
+        // Owner edits decide whether contact info is public
+        fd.append("contact_email", showEmail ? user.email : "");
+        fd.append("contact_phone", showPhone ? (user.phone || "") : "");
+      }
       
       // Add new images
       files.forEach((f) => fd.append("uploaded_images", f));
@@ -408,26 +412,36 @@ export default function EditPost() {
             </label>
 
             <div style={{ marginTop: 12, padding: 10, background: "#f8f4ff", borderRadius: 8, border: "1px dashed #c4b0cd" }}>
-              <h4 style={{ margin: "0 0 8px", fontSize: 14, color: "#9C81A8" }}>Contact Information (Auto-filled)</h4>
-              <p style={{ fontSize: 12, color: "#666", margin: "0 0 12px" }}>Choose what contact info to show publicly:</p>
-              
-              <label style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6, cursor: "pointer" }}>
-                <input 
-                  type="checkbox" 
-                  checked={showEmail} 
-                  onChange={(e) => setShowEmail(e.target.checked)}
-                />
-                <span style={{ fontSize: 13 }}>Show email: <strong>{user.email}</strong></span>
-              </label>
-              
-              <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}>
-                <input 
-                  type="checkbox" 
-                  checked={showPhone} 
-                  onChange={(e) => setShowPhone(e.target.checked)}
-                />
-                <span style={{ fontSize: 13 }}>Show phone: <strong>{user.phone || "Not provided"}</strong></span>
-              </label>
+              <h4 style={{ margin: "0 0 8px", fontSize: 14, color: "#9C81A8" }}>Contact Information</h4>
+              {isOwner ? (
+                <>
+                  <p style={{ fontSize: 12, color: "#666", margin: "0 0 12px" }}>Choose what contact info to show publicly:</p>
+                  <label style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6, cursor: "pointer" }}>
+                    <input 
+                      type="checkbox" 
+                      checked={showEmail} 
+                      onChange={(e) => setShowEmail(e.target.checked)}
+                    />
+                    <span style={{ fontSize: 13 }}>Show email: <strong>{user.email}</strong></span>
+                  </label>
+                  <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}>
+                    <input 
+                      type="checkbox" 
+                      checked={showPhone} 
+                      onChange={(e) => setShowPhone(e.target.checked)}
+                    />
+                    <span style={{ fontSize: 13 }}>Show phone: <strong>{user.phone || "Not provided"}</strong></span>
+                  </label>
+                </>
+              ) : (
+                <>
+                  <p style={{ fontSize: 12, color: "#666", margin: "0 0 12px" }}>Only the original poster can update contact details.</p>
+                  <div style={{ fontSize: 13, lineHeight: 1.6 }}>
+                    <div>Email: <strong>{post.contact_email || "Hidden"}</strong></div>
+                    <div>Phone: <strong>{post.contact_phone || "Hidden"}</strong></div>
+                  </div>
+                </>
+              )}
             </div>
 
             <div className="actions">

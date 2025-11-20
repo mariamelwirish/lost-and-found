@@ -80,6 +80,7 @@ export default function Signup() {
           const errors = [];
           if (errorData.email) errors.push(`Email: ${Array.isArray(errorData.email) ? errorData.email.join(', ') : errorData.email}`);
           if (errorData.username) errors.push(`Username: ${Array.isArray(errorData.username) ? errorData.username.join(', ') : errorData.username}`);
+          if (errorData.phone) errors.push(`Phone: ${Array.isArray(errorData.phone) ? errorData.phone.join(', ') : errorData.phone}`);
           if (errorData.password) errors.push(`Password: ${Array.isArray(errorData.password) ? errorData.password.join(', ') : errorData.password}`);
           if (errorData.password2) errors.push(`Password confirmation: ${Array.isArray(errorData.password2) ? errorData.password2.join(', ') : errorData.password2}`);
           if (errorData.non_field_errors) errors.push(Array.isArray(errorData.non_field_errors) ? errorData.non_field_errors.join(', ') : errorData.non_field_errors);

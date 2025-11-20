@@ -107,14 +107,23 @@ export default function PostsList({
     }));
   };
 
-  const emptyTitle = mine 
-    ? (kind === "lost" ? "I don't have any lost posts" : "I don't have any found posts")
-    : (kind === "lost" ? "No lost items yet" : "No found items yet");
-  const emptyDesc = mine
-    ? "You haven't posted any items yet. Create your first post to get started!"
-    : (kind === "lost"
+  const emptyTitle = (() => {
+    if (receivedOnly) return "No returned items yet";
+    if (mine) return kind === "lost" ? "I don't have any lost posts" : "I don't have any found posts";
+    return kind === "lost" ? "No lost items yet" : "No found items yet";
+  })();
+
+  const emptyDesc = (() => {
+    if (receivedOnly) {
+      return kind === "lost"
+        ? "When a lost item is marked as returned to its owner, it will appear in this list."
+        : "When a found item is marked as returned to its owner, it will appear in this list.";
+    }
+    if (mine) return "You haven't posted any items yet. Create your first post to get started!";
+    return kind === "lost"
       ? "When someone reports a lost item, it will appear here."
-      : "When someone reports a found item, it will appear here.");
+      : "When someone reports a found item, it will appear here.";
+  })();
 
   const containerProps = compact
     ? { style: { paddingTop: 12, paddingBottom: 12 } }
@@ -220,7 +229,7 @@ export default function PostsList({
               </div>
               {p.received_from_poster && (
                 <div style={{ marginTop: 6, fontSize: 11, color: "#059669" }}>
-                  ✓ Received from poster
+                  ✓ Returned to Owner
                 </div>
               )}
               {mine && user && (

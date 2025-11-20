@@ -55,6 +55,8 @@ export default function Navbar() {
               </NavLink>
             </nav>
 
+            <span className="sep sep--mobile-bridge" aria-hidden="true" />
+
             {/* RIGHT: auth */}
             <div className="nav right" onClick={() => setOpen(false)}>
               {user ? (

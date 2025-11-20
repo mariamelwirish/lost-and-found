@@ -180,7 +180,7 @@ export default function ViewPost() {
 
             {post.received_from_poster && (
               <div style={{ margin: "8px 0", color: "#059669", fontWeight: 500 }}>
-                ✓ Received from poster{post.received_at ? ` on ${new Date(post.received_at).toLocaleString()}` : ""}
+                ✓ Returned to Owner{post.received_at ? ` on ${new Date(post.received_at).toLocaleString()}` : ""}
               </div>
             )}
 

@@ -1,12 +1,23 @@
+from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils import timezone
-from django.contrib.auth.hashers import make_password
 from datetime import timedelta
 import secrets
 
+from .validators import validate_phone_number
+
 class User(AbstractUser):
-    phone = models.CharField(max_length=20, blank=True, null=True)
+    email = models.EmailField("email address", unique=True)
+    phone = models.CharField(
+        max_length=20,
+        blank=True,
+        null=True,
+        help_text="Digits only, optionally starting with + (7-15 digits).",
+        validators=[validate_phone_number],
+    )
+
+    REQUIRED_FIELDS = ["email"]
 
 
 class VerificationCode(models.Model):
@@ -48,7 +59,12 @@ class PendingSignup(models.Model):
     username = models.CharField(max_length=150, unique=True)
     first_name = models.CharField(max_length=150)
     last_name = models.CharField(max_length=150)
-    phone = models.CharField(max_length=20, blank=True, null=True)
+    phone = models.CharField(
+        max_length=20,
+        blank=True,
+        null=True,
+        validators=[validate_phone_number],
+    )
     password_hash = models.CharField(max_length=255)
 
     created_at = models.DateTimeField(auto_now_add=True)

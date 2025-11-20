@@ -4,6 +4,8 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext as _
 
+PHONE_PATTERN = re.compile(r"^\+?\d{7,15}$")
+
 def validate_aub_email(email: str) -> str:
     """
     Ensures email's domain is one of settings.AUB_EMAIL_DOMAINS.
@@ -24,6 +26,20 @@ def validate_aub_email(email: str) -> str:
         raise ValidationError("Email must be an AUB address.")
 
     return normalized
+
+
+def validate_phone_number(phone: str) -> str:
+    """Ensure phone numbers contain digits only with optional leading + (7-15 digits)."""
+    if phone is None:
+        return ""
+    cleaned = phone.strip()
+    if not cleaned:
+        return ""
+    if not PHONE_PATTERN.fullmatch(cleaned):
+        raise ValidationError(
+            "Enter a valid phone number using digits only (7-15 digits, optionally starting with +)."
+        )
+    return cleaned
 
 def validate(password, user=None):
     if len(password) < 8:

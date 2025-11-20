@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .validators import validate_aub_email
+from .validators import validate_aub_email, validate_phone_number
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError as DjangoValidationError
 from .models import PendingSignup
@@ -29,7 +29,12 @@ class SignupStartSerializer(serializers.Serializer):
     def validate_username(self, value):
         if User.objects.filter(username__iexact=value).exists():
             raise serializers.ValidationError("A user with this username already exists.")
+        if PendingSignup.objects.filter(username__iexact=value).exists():
+            raise serializers.ValidationError("A signup with this username is already in progress.")
         return value
+
+    def validate_phone(self, value):
+        return validate_phone_number(value)
 
     def validate(self, attrs):
         if attrs["password"] != attrs["password2"]:
@@ -38,6 +43,8 @@ class SignupStartSerializer(serializers.Serializer):
         # Check if email is already registered
         if User.objects.filter(email__iexact=attrs["email"]).exists():
             raise serializers.ValidationError({"email": "A user with this email already exists."})
+        if PendingSignup.objects.filter(email__iexact=attrs["email"]).exists():
+            raise serializers.ValidationError({"email": "A signup with this email is already in progress."})
         
         # Validate password strength
         try:
