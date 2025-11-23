@@ -20,8 +20,8 @@ export default function ForgotPassword() {
       await api.post("/api/users/request-password-reset/", {
         email: email
       });
-      // Redirect to confirmation page with email in state
-      navigate("/reset-password", { state: { email } });
+      // Redirect to confirmation page with email in state and start cooldown
+      navigate("/reset-password", { state: { email, startCooldown: true } });
     } catch (err) {
       if (err.response?.data?.error) {
         setError(err.response.data.error);

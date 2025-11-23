@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import api from "../api";
 
@@ -38,9 +38,11 @@ export default function ResetPasswordConfirm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
+  const location = useLocation();
+  const initialCooldown = location.state?.startCooldown ? 60 : 0;
+  const [resendCooldown, setResendCooldown] = useState(initialCooldown); // seconds
   
   const navigate = useNavigate();
-  const location = useLocation();
   
   // Get email from URL state (passed from ForgotPassword page)
   const email = location.state?.email;
@@ -49,6 +51,27 @@ export default function ResetPasswordConfirm() {
   if (!email) {
     navigate("/forgot");
     return null;
+  }
+
+  // Countdown for resend button
+  useEffect(() => {
+    if (resendCooldown <= 0) return;
+    const id = setInterval(() => {
+      setResendCooldown((prev) => (prev > 0 ? prev - 1 : 0));
+    }, 1000);
+    return () => clearInterval(id);
+  }, [resendCooldown]);
+
+  async function handleResendCode() {
+    if (!email) return;
+    setError("");
+    try {
+      await api.post("/api/users/request-password-reset/", { email });
+      setResendCooldown(60); // 1 minute in seconds
+    } catch (err) {
+      const serverMessage = extractErrorMessage(err.response?.data);
+      setError(serverMessage || "We couldn't resend the code. Please try again in a moment.");
+    }
   }
 
   async function onSubmit(e) {
@@ -137,6 +160,7 @@ export default function ResetPasswordConfirm() {
         <h2 style={{margin:"0 0 6px", fontSize:18}}>Reset your password</h2>
         <p style={{margin:"0 0 14px", fontSize:13, color:"#555"}}>
           Enter the verification code sent to <strong>{email}</strong> and your new password.
+          The code is valid for 1 minute.
         </p>
 
         <label className="field">
@@ -197,6 +221,39 @@ export default function ResetPasswordConfirm() {
         >
           {loading ? "Resetting..." : "Reset Password"}
         </button>
+
+        <div style={{ marginTop: 12, fontSize: 13, textAlign: "center" }}>
+          {resendCooldown > 0 ? (
+            <span style={{ color: "#555" }}>
+              You can request a new code in {Math.floor(resendCooldown / 60)}:
+              {String(resendCooldown % 60).padStart(2, "0")} minutes.
+            </span>
+          ) : (
+            <button
+              type="button"
+              onClick={handleResendCode}
+              style={{
+                marginTop: 4,
+                background: "#ffffff",
+                border: "1px solid #9C81A8",
+                color: "#9C81A8",
+                cursor: "pointer",
+                padding: "6px 14px",
+                borderRadius: "4px",
+                transition: "all 0.2s ease",
+                fontSize: 13,
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.background = "#f1e9f5";
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.background = "#ffffff";
+              }}
+            >
+              Resend verification code
+            </button>
+          )}
+        </div>
 
         <div className="divider">Or</div>
         <Link className="btn btn-ghost" to="/login">Back to Log in</Link>

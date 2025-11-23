@@ -26,6 +26,7 @@ export default function ProfilePage() {
   const [pwCode, setPwCode] = useState("");
   const [pw1, setPw1] = useState("");
   const [pw2, setPw2] = useState("");
+  const [pwCooldown, setPwCooldown] = useState(0); // seconds before resend
   const [editingInfo, setEditingInfo] = useState(false);
   const navigate = useNavigate();
 
@@ -117,6 +118,7 @@ export default function ProfilePage() {
       await api.post("/api/users/request-password-reset/", { email: form.email });
       setPwStage(1);
       setPwMsg("Verification code sent to your email. Enter it below.");
+      setPwCooldown(60); // 1 minute before allowing another code
     } catch (e) {
       console.error(e);
       setPwErr(formatErrorMessage(e, "Failed to send code."));
@@ -124,6 +126,15 @@ export default function ProfilePage() {
       setPwLoading(false);
     }
   };
+
+  // Countdown for resend button in profile password section
+  useEffect(() => {
+    if (pwCooldown <= 0) return;
+    const id = setInterval(() => {
+      setPwCooldown((prev) => (prev > 0 ? prev - 1 : 0));
+    }, 1000);
+    return () => clearInterval(id);
+  }, [pwCooldown]);
 
   const submitNewPassword = async () => {
     setPwLoading(true);
@@ -314,8 +325,17 @@ export default function ProfilePage() {
               {pwStage === 0 && (
                 <div>
                   <p style={{ marginBottom: 12 }}>To update your password we will email you a confirmation code.</p>
-                  <button type="button" className="btn-pill" onClick={requestPasswordCode} disabled={pwLoading || !form.email}>
-                    {pwLoading ? "Sending…" : "Request confirmation code"}
+                  <button
+                    type="button"
+                    className="btn-pill"
+                    onClick={requestPasswordCode}
+                    disabled={pwLoading || !form.email || pwCooldown > 0}
+                  >
+                    {pwLoading
+                      ? "Sending…"
+                      : pwCooldown > 0
+                        ? `You can request again in ${Math.floor(pwCooldown / 60)}:${String(pwCooldown % 60).padStart(2, "0")}`
+                        : "Request confirmation code"}
                   </button>
                 </div>
               )}

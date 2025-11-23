@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { setUser } from "../utils/session";
 import api from "../api";
@@ -34,10 +34,69 @@ export default function Signup() {
   const [step, setStep] = useState(1); // 1: form, 2: verify code
   const [verificationCode, setVerificationCode] = useState("");
   const [error, setError] = useState("");
+  const [resendCooldown, setResendCooldown] = useState(0); // seconds
   const navigate = useNavigate();
   const strong = passesAllRules(form.password);
 
+  // Countdown for resend button when on step 2
+  useEffect(() => {
+    if (step !== 2 || resendCooldown <= 0) return;
+    const id = setInterval(() => {
+      setResendCooldown((prev) => (prev > 0 ? prev - 1 : 0));
+    }, 1000);
+    return () => clearInterval(id);
+  }, [step, resendCooldown]);
+
   function update(k, v) { setForm(p => ({ ...p, [k]: v })); }
+
+  async function handleSendCode() {
+    const { firstName, lastName, username, email, phone, password, password2 } = form;
+
+    if (!firstName.trim() || !lastName.trim() || !username.trim() || !email.trim() || !password) {
+      setError("Please fill all required fields.");
+      return;
+    }
+
+    if (password !== password2) {
+      setError("Passwords do not match.");
+      return;
+    }
+
+    if (!strong) {
+      setError("Use a stronger password");
+      return;
+    }
+
+    try {
+      await api.post("/api/users/send-code/", {
+        first_name: firstName.trim(),
+        last_name: lastName.trim(),
+        username: username.trim(),
+        email: email.trim(),
+        phone: phone.trim() || null,
+        password,
+        password2
+      });
+      setStep(2);
+      setError("");
+      setResendCooldown(60); // 1 minute in seconds
+    } catch (err) {
+      const errorData = err.response?.data;
+      if (errorData) {
+        const errors = [];
+        if (errorData.email) errors.push(`Email: ${Array.isArray(errorData.email) ? errorData.email.join(', ') : errorData.email}`);
+        if (errorData.username) errors.push(`Username: ${Array.isArray(errorData.username) ? errorData.username.join(', ') : errorData.username}`);
+        if (errorData.phone) errors.push(`Phone: ${Array.isArray(errorData.phone) ? errorData.phone.join(', ') : errorData.phone}`);
+        if (errorData.password) errors.push(`Password: ${Array.isArray(errorData.password) ? errorData.password.join(', ') : errorData.password}`);
+        if (errorData.password2) errors.push(`Password confirmation: ${Array.isArray(errorData.password2) ? errorData.password2.join(', ') : errorData.password2}`);
+        if (errorData.non_field_errors) errors.push(Array.isArray(errorData.non_field_errors) ? errorData.non_field_errors.join(', ') : errorData.non_field_errors);
+
+        setError(errors.length > 0 ? errors.join(' ') : errorData.detail || "Failed to send verification code.");
+      } else {
+        setError("Failed to send verification code.");
+      }
+    }
+  }
 
   async function onSubmit(e) {
     e.preventDefault();
@@ -45,51 +104,7 @@ export default function Signup() {
 
     if (step === 1) {
       // Step 1: Send verification code
-      const { firstName, lastName, username, email, phone, password, password2 } = form;
-
-      if (!firstName.trim() || !lastName.trim() || !username.trim() || !email.trim() || !password) {
-        setError("Please fill all required fields.");
-        return;
-      }
-
-      if (password !== password2) {
-        setError("Passwords do not match.");
-        return;
-      }
-
-      if (!strong) {
-        setError("Use a stronger password");
-        return;
-      }
-
-      try {
-        await api.post("/api/users/send-code/", {
-          first_name: firstName.trim(),
-          last_name: lastName.trim(),
-          username: username.trim(),
-          email: email.trim(),
-          phone: phone.trim() || null,
-          password,
-          password2
-        });
-        setStep(2);
-      } catch (err) {
-        const errorData = err.response?.data;
-        if (errorData) {
-          // Handle field-specific errors
-          const errors = [];
-          if (errorData.email) errors.push(`Email: ${Array.isArray(errorData.email) ? errorData.email.join(', ') : errorData.email}`);
-          if (errorData.username) errors.push(`Username: ${Array.isArray(errorData.username) ? errorData.username.join(', ') : errorData.username}`);
-          if (errorData.phone) errors.push(`Phone: ${Array.isArray(errorData.phone) ? errorData.phone.join(', ') : errorData.phone}`);
-          if (errorData.password) errors.push(`Password: ${Array.isArray(errorData.password) ? errorData.password.join(', ') : errorData.password}`);
-          if (errorData.password2) errors.push(`Password confirmation: ${Array.isArray(errorData.password2) ? errorData.password2.join(', ') : errorData.password2}`);
-          if (errorData.non_field_errors) errors.push(Array.isArray(errorData.non_field_errors) ? errorData.non_field_errors.join(', ') : errorData.non_field_errors);
-          
-          setError(errors.length > 0 ? errors.join(' ') : errorData.detail || "Failed to send verification code.");
-        } else {
-          setError("Failed to send verification code.");
-        }
-      }
+      await handleSendCode();
     } else {
       // Step 2: Verify code and create account
       if (!verificationCode.trim()) {
@@ -126,7 +141,10 @@ export default function Signup() {
           </div>
 
           <h2>Verify Your Email</h2>
-          <p>We sent a 6-digit code to {form.email}</p>
+          <p>
+            We sent a 6-digit code to {form.email}.<br />
+            It is valid for 1 minute.
+          </p>
 
           <label className="field">
             <span>Verification Code</span>
@@ -155,9 +173,45 @@ export default function Signup() {
           </button>
 
           <div style={{ marginTop: 12, fontSize: 14, textAlign: "center" }}>
+            {resendCooldown > 0 ? (
+              <span style={{ color: "#555" }}>
+                You can request a new code in {Math.floor(resendCooldown / 60)}:
+                {String(resendCooldown % 60).padStart(2, "0")} minutes.
+              </span>
+            ) : (
+              <button
+                type="button"
+                onClick={handleSendCode}
+                style={{
+                  marginTop: 4,
+                  background: "#ffffff",
+                  border: "1px solid #9C81A8",
+                  color: "#9C81A8",
+                  cursor: "pointer",
+                  padding: "6px 14px",
+                  borderRadius: "4px",
+                  transition: "all 0.2s ease",
+                  fontSize: 13,
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.background = "#f1e9f5";
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.background = "#ffffff";
+                }}
+              >
+                Resend verification code
+              </button>
+            )}
+          </div>
+
+          <div style={{ marginTop: 12, fontSize: 14, textAlign: "center" }}>
             <button 
               type="button" 
-              onClick={() => setStep(1)} 
+              onClick={() => {
+                setStep(1);
+                setResendCooldown(0);
+              }} 
               style={{ 
                 background: "#9C81A8", 
                 border: "none", 
