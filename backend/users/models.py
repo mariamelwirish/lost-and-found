@@ -37,12 +37,8 @@ class VerificationCode(models.Model):
         self.save(update_fields=["is_used"])
 
     @classmethod
-    def new_code_for_email(cls, email, lifetime_minutes: int = 10) -> "VerificationCode":
-        """
-        Helper to create a fresh code with expiration.
-        We'll use this later when we implement the send-email step.
-        """
-        # Generate a 6-digit code (zero-padded)
+    def new_code_for_email(cls, email, lifetime_minutes: int = 1) -> "VerificationCode":
+        """Create a fresh code that expires quickly (default 1 minute)."""
         code = f"{secrets.randbelow(1_000_000):06d}"
         expires_at = timezone.now() + timedelta(minutes=lifetime_minutes)
         return cls.objects.create(email=email, code=code, expires_at=expires_at)
@@ -71,10 +67,28 @@ class PendingSignup(models.Model):
     expires_at = models.DateTimeField()
 
     @classmethod
-    def create_or_update(cls, *, email, username, first_name, last_name, phone, raw_password, lifetime_minutes=30):
-        # hash the password immediately
+    def create_or_update(
+        cls,
+        *,
+        email,
+        username,
+        first_name,
+        last_name,
+        phone,
+        raw_password,
+        lifetime_minutes=1,
+    ):
+        """Create/update a pending signup that expires quickly (default 1 minute).
+
+        Expired pending signups for this email are removed first so they don't block
+        the user from requesting a new code.
+        """
         pw_hash = make_password(raw_password)
         expires_at = timezone.now() + timedelta(minutes=lifetime_minutes)
+
+        # Drop any expired pending for this email so it no longer blocks signup
+        cls.objects.filter(email__iexact=email, expires_at__lt=timezone.now()).delete()
+
         obj, _ = cls.objects.update_or_create(
             email=email,
             defaults={

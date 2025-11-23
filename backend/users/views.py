@@ -28,7 +28,8 @@ class SendVerificationCodeView(APIView):
 
         # create & send verification code
         vc = VerificationCode.new_code_for_email(pending.email)
-        send_verification_email(pending.email, vc.code)
+        full_name = f"{pending.first_name} {pending.last_name}".strip()
+        send_verification_email(pending.email, vc.code, full_name=full_name)
 
         return Response({"detail": "Verification code sent."})
 
@@ -110,9 +111,10 @@ class RequestResetPasswordView(APIView):
 
         # Create verification code
         vc = VerificationCode.new_code_for_email(email)
-        
+
         try:
-            send_reset_password_email(email, vc.code)
+            full_name = f"{user.first_name} {user.last_name}".strip()
+            send_reset_password_email(email, vc.code, full_name=full_name)
         except Exception as e:
             # Log the error but don't expose it to the user
             print(f"Failed to send reset email: {e}")

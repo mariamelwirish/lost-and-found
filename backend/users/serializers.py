@@ -27,8 +27,17 @@ class SignupStartSerializer(serializers.Serializer):
         return validate_aub_email(value)
 
     def validate_username(self, value):
+        # Existing real user always wins
         if User.objects.filter(username__iexact=value).exists():
             raise serializers.ValidationError("A user with this username already exists.")
+
+        from django.utils import timezone
+
+        # Drop expired pending signups for this username so they don't block
+        PendingSignup.objects.filter(
+            username__iexact=value, expires_at__lt=timezone.now()
+        ).delete()
+
         if PendingSignup.objects.filter(username__iexact=value).exists():
             raise serializers.ValidationError("A signup with this username is already in progress.")
         return value
@@ -40,12 +49,19 @@ class SignupStartSerializer(serializers.Serializer):
         if attrs["password"] != attrs["password2"]:
             raise serializers.ValidationError({"password2": "Passwords do not match."})
         
+        from django.utils import timezone
+
+        # Clean up expired pending signups for this email so they don't block
+        PendingSignup.objects.filter(
+            email__iexact=attrs["email"], expires_at__lt=timezone.now()
+        ).delete()
+
         # Check if email is already registered
         if User.objects.filter(email__iexact=attrs["email"]).exists():
             raise serializers.ValidationError({"email": "A user with this email already exists."})
         if PendingSignup.objects.filter(email__iexact=attrs["email"]).exists():
             raise serializers.ValidationError({"email": "A signup with this email is already in progress."})
-        
+
         # Validate password strength
         try:
             validate_password(attrs["password"], user=None)
