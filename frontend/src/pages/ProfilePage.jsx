@@ -28,6 +28,7 @@ export default function ProfilePage() {
   const [pw2, setPw2] = useState("");
   const [pwCooldown, setPwCooldown] = useState(0); // seconds before resend
   const [editingInfo, setEditingInfo] = useState(false);
+  const [originalForm, setOriginalForm] = useState(null);
   const navigate = useNavigate();
 
   const formatErrorMessage = (error, fallback = "Something went wrong.") => {
@@ -99,6 +100,8 @@ export default function ProfilePage() {
       const updated = res.data || res;
       setUser(updated);
       setMsg("Profile updated successfully.");
+      // Clear the edit snapshot and exit edit mode
+      setOriginalForm(null);
       setEditingInfo(false);
     } catch (e) {
       console.error(e);
@@ -260,10 +263,15 @@ export default function ProfilePage() {
                 className="btn-pill"
                 onClick={() => {
                   if (editingInfo) {
+                    // Cancel edits and restore original values
+                    if (originalForm) setForm(originalForm);
+                    setOriginalForm(null);
                     setEditingInfo(false);
                     setMsg("");
                     setErr("");
                   } else {
+                    // Enter edit mode: snapshot current form so we can restore on cancel
+                    setOriginalForm({ ...form });
                     setEditingInfo(true);
                   }
                 }}
@@ -301,6 +309,9 @@ export default function ProfilePage() {
                     type="button"
                     className="btn-pill btn-pill--ghost"
                     onClick={() => {
+                      // Cancel edits: restore original snapshot if available
+                      if (originalForm) setForm(originalForm);
+                      setOriginalForm(null);
                       setEditingInfo(false);
                       setMsg("");
                       setErr("");
