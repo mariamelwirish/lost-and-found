@@ -8,6 +8,8 @@ from .models import ItemPost
 from .serializers import ItemPostSerializer
 from users.serializers import UserSerializer
 from rest_framework import status
+from rest_framework.decorators import api_view, permission_classes
+
 
 User = get_user_model()
 
@@ -112,3 +114,23 @@ class AdminViewSet(ModelViewSet):
         if instance.id == request.user.id:
             return Response({"error": "You cannot delete your own account."}, status=status.HTTP_400_BAD_REQUEST)
         return super().destroy(request, *args, **kwargs)
+
+
+@api_view(['POST'])
+@permission_classes([IsAdminUser])
+def admin_posts_bulk(request):
+    """Compatibility endpoint for frontend: POST /api/admin/posts/bulk/"""
+    post_ids = request.data.get('postIds', [])
+    action = request.data.get('action')
+
+    if not post_ids or not action:
+        return Response({'error': 'Missing postIds or action'}, status=400)
+
+    posts = ItemPost.objects.filter(id__in=post_ids)
+
+    if action == 'delete':
+        count = posts.count()
+        posts.delete()
+        return Response({'message': f'Deleted {count} posts'})
+
+    return Response({'error': 'Invalid action'}, status=400)

@@ -7,6 +7,9 @@ export default function SearchBar({ defaultKind = "", showKind = true, onChange,
   const [location, setLocation] = useState("");
   const [date, setDate] = useState("");
 
+  // local today string (YYYY-MM-DD) to prevent selecting future dates
+  const todayStr = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().split('T')[0];
+
   const timeoutRef = useRef(null);
   const firstRun = useRef(true);
 
@@ -24,6 +27,12 @@ export default function SearchBar({ defaultKind = "", showKind = true, onChange,
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
       timeoutRef.current = null;
+    }
+    // prevent searching for a future date
+    if (date && date > todayStr) {
+      alert("Date cannot be in the future");
+      setDate(todayStr);
+      // still trigger change with adjusted date
     }
     triggerChange();
   }
@@ -80,6 +89,7 @@ export default function SearchBar({ defaultKind = "", showKind = true, onChange,
             type="date"
             value={date}
             onChange={(e) => setDate(e.target.value)}
+            max={todayStr}
             className="search-control date"
           />
 

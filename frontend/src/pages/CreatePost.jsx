@@ -90,6 +90,12 @@ export default function CreatePost() {
 
   async function onSubmit(e) {
     e.preventDefault();
+    // prevent future dates (compute local YYYY-MM-DD)
+    const todayStr = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().split('T')[0];
+    if (date && date > todayStr) {
+      alert("Date cannot be in the future");
+      return;
+    }
     setSubmitting(true);
     try {
       const fd = new FormData();
@@ -290,7 +296,7 @@ export default function CreatePost() {
 
             <label className="field">
               <span>Date {postType === "lost" ? "Lost" : "Found"}</span>
-              <input type="date" value={date} onChange={(e) => setDate(e.target.value)} required />
+              <input type="date" value={date} onChange={(e) => setDate(e.target.value)} max={new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().split('T')[0]} required />
             </label>
 
             <label className="field">

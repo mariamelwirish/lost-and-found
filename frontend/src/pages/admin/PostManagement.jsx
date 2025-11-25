@@ -90,7 +90,11 @@ export default function PostManagement() {
 
   const handleBulkAction = async (action) => {
     if (!selectedPosts.length) return;
-    
+    // Confirm destructive actions (match single-row delete confirmation)
+    if (action === 'delete') {
+      if (!confirm('Are you sure you want to delete the selected posts?')) return;
+    }
+
     try {
       await api.post('/api/admin/posts/bulk/', {
         postIds: selectedPosts,

@@ -155,6 +155,12 @@ export default function EditPost() {
 
   async function onSubmit(e) {
     e.preventDefault();
+    // prevent future dates (compute local date YYYY-MM-DD)
+    const todayStr = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().split('T')[0];
+    if (date && date > todayStr) {
+      alert("Date cannot be in the future");
+      return;
+    }
     setSubmitting(true);
     try {
       const fd = new FormData();
@@ -394,6 +400,7 @@ export default function EditPost() {
                 type="date" 
                 value={date} 
                 onChange={(e) => setDate(e.target.value)} 
+                max={new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().split('T')[0]}
                 required 
               />
             </label>
