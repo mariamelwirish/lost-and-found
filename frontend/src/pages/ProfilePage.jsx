@@ -95,7 +95,7 @@ export default function ProfilePage() {
         last_name: form.last_name,
         phone: form.phone,
       };
-      const res = await api.put("/api/users/profile/", payload);
+      const res = await api.patch("/api/users/profile/", payload);
       const updated = res.data || res;
       setUser(updated);
       setMsg("Profile updated successfully.");

@@ -23,10 +23,16 @@ class SignupAndAuthFlowTests(APITestCase):
             "username": "student1",
             "first_name": "Stu",
             "last_name": "Dent",
-            "phone": "123",
+            "phone": "+96170123456",
             "password": self._strong_password(),
             "password2": self._strong_password(),
         }
+        # Ensure no conflicting records
+        User.objects.filter(email=payload["email"]).delete()
+        User.objects.filter(username=payload["username"]).delete()
+        PendingSignup.objects.filter(email=payload["email"]).delete()
+        PendingSignup.objects.filter(username=payload["username"]).delete()
+
         response = self.client.post("/api/users/send-code/", payload, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
