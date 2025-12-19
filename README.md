@@ -1,100 +1,151 @@
-# Lost and Found Platform
+# AUB Lost & Found Platform
 
-## Setup Instructions
+An end-to-end web platform for the American University of Beirut community to report, discover, and resolve lost and found items. Students, faculty, and staff can post items (lost or found) with photos, search and filter results, and mark items as received. Admins can moderate and perform bulk actions.
 
-### 1. Clone and Install Dependencies
+If you are looking for step-by-step setup and environment configuration, see Instructions.md.
 
-**Backend:**
+## Features
+- Post items as "Lost" or "Found" with title, description, date, location, and images.
+- Search and filter by keyword, location, exact date, date range, and status.
+- Personal views for "My Lost" and "My Found" items.
+- Mark an item as received or revoke that status (owner or admin).
+- AUB email-based sign-up and verification; JWT authentication with refresh.
+- Admin endpoints for bulk operations and moderation.
+- Optional Supabase-backed image storage; local storage fallback.
+- Health check endpoint and Sentry instrumentation (frontend + backend).
+
+## Tech Stack
+- Frontend: React 19, React Router 7, Vite, Axios, Vitest, Testing Library.
+- Backend: Django 5.2, Django REST Framework, SimpleJWT, CORS, WhiteNoise, Pillow.
+- Storage: Supabase (via django-storages) or local filesystem.
+- Database: PostgreSQL (docker-compose provided) or SQLite for local tests.
+- Monitoring: Sentry SDK wired on both frontend and backend.
+
+## Architecture Overview
+- frontend/: Vite app with pages (Lost, Found, Create/Edit Post, Profile), layouts, and shared components.
+	- src/api.js: Axios client with JWT bearer and refresh interceptor.
+	- Env vars used: VITE_API_URL (Axios base), VITE_API_BASE (fetch base).
+- backend/: Django project with two apps:
+	- users: custom user model, AUB email verification and password reset flows.
+	- api: item posts, images, admin operations, and Sentry test endpoint.
+- docker-compose.yml: local PostgreSQL service with a named volume.
+
+### Backend URLs (non-exhaustive)
+- Health: GET /health/
+- Auth:
+	- POST /api/user/register/
+	- POST /api/token/
+	- POST /api/token/refresh/
+- Users (email flows):
+	- POST /api/users/send-code/
+	- POST /api/users/verify-code/
+	- POST /api/users/request-password-reset/
+	- POST /api/users/reset-password/
+	- GET /api/users/profile/
+- Posts: /api/posts/ (list, retrieve, create, update, delete)
+	- Filters: kind=lost|found, mine=1, q, location, date, date_from, date_to, ordering (e.g. -creationDate)
+	- Actions (auth required): POST /api/posts/{id}/mark_received/, POST /api/posts/{id}/revoke_received/
+- Admin: /api/admin/... (including POST /api/admin/posts/bulk/)
+- Debug: GET /debug/sentry-test/ (raises error for Sentry), /debug/send-test-email/
+
+## Quick Start (Local)
+
+### Prerequisites
+- Python 3.11+ (recommended)
+- Node.js 20+
+- Git
+- Optional: Docker Desktop (for local PostgreSQL)
+
+### 1) Start PostgreSQL (optional but recommended)
+If you prefer PostgreSQL locally:
+
+```bash
+docker compose up -d db
+```
+
+Database URL to use in the backend `.env` (replace placeholders with your credentials):
+
+```
+postgresql://DB_USER:DB_PASSWORD@localhost:5432/DB_NAME
+```
+
+For quick tests you can also use SQLite with `DATABASE_URL=sqlite:///db.sqlite3`.
+
+### 2) Backend setup
 ```bash
 cd backend
 python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+venv\Scripts\activate  # Windows PowerShell
 pip install -r requirements.txt
-# includes sentry-sdk[django], structlog, Pillow, etc.
 ```
 
-**Frontend:**
+Create backend `.env` (see the full example below) and run migrations:
+
 ```bash
-cd frontend
-npm install
-# installs @sentry/react alongside React 19/Vite deps
-```
-
-### 2. Environment Configuration
-
-**Backend:**
-```bash
-cd backend
-cp .env.example .env
-# Edit .env with actual values (SendGrid key, database URL, Sentry DSN, etc.)
-```
-
-**Frontend:**
-```bash
-cd frontend
-cp .env.example .env
-# Default values should work for local development (update VITE_SENTRY_* if you rotate your DSN)
-```
-
-### 2.5. Monitoring (Sentry)
-- The sample `.env` files already include the provided DSN
-	(`https://f8a347a339ca450ebc565a7da9a9096e@o4510383110815744.ingest.de.sentry.io/4510383131918416`).
-- Override `SENTRY_DSN`/`VITE_SENTRY_DSN` per environment and adjust the
-	optional `*_TRACES_SAMPLE_RATE`, `SENTRY_ENVIRONMENT`, and release tags as needed.
-- After launching the app, trigger an error (e.g., temporarily raise an
-	exception in a Django view) to verify events hit the Sentry dashboard.
-- Deployments must set the same env vars in Render (backend) and Vercel (frontend) before smoke-testing.
-
-#### 2.5.1. Verifying Sentry locally
-- **Backend**: with `python manage.py runserver` running, browse to `http://localhost:8000/debug/sentry-test/`. That view raises `RuntimeError("Manual Sentry verification endpoint hit")`, which should appear in Sentry tagged with `environment: development`.
-- **Frontend**: start Vite (`npm run dev`) and open `http://localhost:5173/?sentryTest=1`. `Home.jsx` watches for the `sentryTest` query param and throws once, generating a JavaScript event. Remove the query param to stop crashing.
-
-#### 2.5.2. Verifying Sentry after deployment
-- **Backend (Render)**: add `SENTRY_DSN`, `SENTRY_TRACES_SAMPLE_RATE`, `SENTRY_ENVIRONMENT=production`, and optional `SENTRY_RELEASE` to the Render service, redeploy, then visit `https://<your-render-domain>/debug/sentry-test/`. Resolve/ignore the resulting production-tagged issue when finished.
-- **Frontend (Vercel)**: set `VITE_SENTRY_DSN`, `VITE_SENTRY_TRACES_SAMPLE_RATE`, `VITE_SENTRY_REPLAY_SAMPLE_RATE`, `VITE_ENVIRONMENT=production`, `VITE_SENTRY_RELEASE` in Vercel → Deployments → Environment Variables, redeploy, then hit `https://<your-vercel-domain>/?sentryTest=1`. The error should show up tagged with the production environment; remove the query string once confirmed.
-
-### 3. Database Setup
-```bash
-cd backend
-source venv/bin/activate
 python manage.py migrate
-```
-
-### 4. Run Development Servers
-
-**Terminal 1 - Backend:**
-```bash
-cd backend
-source venv/bin/activate
 python manage.py runserver
 ```
 
-**Terminal 2 - Frontend:**
-```bash
-cd frontend
-npm run dev
-```
-
-### 5. Access Application
-- Frontend: http://localhost:5173
-- Backend API: http://localhost:8000
-
-### 6. Testing
-**Backend Tests**
-```bash
-cd backend
-DATABASE_URL=sqlite:///db.sqlite3 python manage.py test
-```
-
-**Frontend Tests**
+### 3) Frontend setup
 ```bash
 cd frontend
 npm install
+npm run dev
+```
+
+Default dev URLs: Frontend http://localhost:5173, Backend http://localhost:8000
+
+## Environment Variables
+
+### Backend (.env)
+- DJANGO_DEBUG=true
+- DJANGO_SECRET_KEY=dev-insecure
+- DATABASE_URL=postgresql://DB_USER:DB_PASSWORD@localhost:5432/DB_NAME
+- CORS_ALLOWED_ORIGINS=http://localhost:5173
+- EMAIL_BACKEND=django.core.mail.backends.console.EmailBackend
+- SENTRY_DSN=<your-sentry-dsn> (optional)
+- SENTRY_TRACES_SAMPLE_RATE=0.2 (optional)
+- SENTRY_ENVIRONMENT=development (optional)
+- USE_SUPABASE=true|false
+- SUPABASE_URL=<your-supabase-url>
+- SUPABASE_KEY=<your-supabase-service-key>
+- SUPABASE_BUCKET_NAME=item-images
+
+Notes:
+- With `USE_SUPABASE=true`, images are saved to the Supabase bucket `item-images`.
+- With `USE_SUPABASE=false`, images are stored locally under media/.
+
+### Frontend (.env)
+- VITE_API_URL=http://localhost:8000
+- VITE_API_BASE=http://localhost:8000
+- VITE_SENTRY_DSN=<your-sentry-dsn> (optional)
+- VITE_SENTRY_TRACES_SAMPLE_RATE=0.2 (optional)
+- VITE_SENTRY_REPLAY_SAMPLE_RATE=0 (optional)
+- VITE_ENVIRONMENT=development (optional)
+
+## Testing
+
+### Backend
+```bash
+cd backend
+set DATABASE_URL=sqlite:///db.sqlite3
+python manage.py test
+```
+
+### Frontend
+```bash
+cd frontend
 npm test -- --run
 ```
 
-## Important Notes
-- Never commit `.env` files to git
-- Use SendGrid API key for email functionality
-- Use AUB email addresses (@aub.edu.lb or @mail.aub.edu) for registration
+## Monitoring (Sentry)
+- Backend smoke test: http://localhost:8000/debug/sentry-test/
+- Frontend smoke test: open http://localhost:5173/?sentryTest=1 once after `npm run dev`.
+
+## Deployment Notes
+- Backend can be deployed to Render or similar PaaS. Ensure environment variables (including Sentry) are set.
+- Frontend can be deployed to Vercel. Set the same Sentry and API environment variables.
+
+## License
+This project is provided for educational use; no explicit license is specified.
 
